@@ -27,7 +27,10 @@ namespace betaBarrelProgram
         public double Phi { get; set; }
         public double Psi { get; set; }
         public double Omega { get; set; }
+        public double BFacCA { get; set; } //Added 6-2-17 for loop purposes
+        public double RelBFac { get; set; }
         public string SSType { get; set; }
+        public string DSSP { get; set; }
         public string ThreeLetCode { get; set; }
         public string OneLetCode { get; set; }
         public int SeqID { get; set; } //formerly authSeqID
@@ -60,111 +63,67 @@ namespace betaBarrelProgram
         //constructor
         public Res(ref AtomParser.AtomCategory _myAtomCat, int chainNum, int resNum, int FirstAtomNum)
         {
-	        public int h_bonder { get; set; }
-	        public int h_bonderID { get; set; }
-	        public double aDist { get; set; }
-	        public double bDist { get; set; }
-	        public int ResNum { get; set; }
-	        public double Phi { get; set; }
-	        public double Psi { get; set; }
-	        public double Omega { get; set; }
-	        public double BFacCA { get; set; } //Added 6-2-17 for loop purposes
-	        public double RelBFac { get; set; }
-	        public string SSType { get; set; }
-	        public string DSSP { get; set; }
-	        public string ThreeLetCode { get; set; }
-	        public string OneLetCode { get; set; }
-	        public int SeqID { get; set; } //formerly authSeqID
-	        public double Tilt { get; set; }
-	        public Res previousStrandRes { get; set; }
-	        public Res nextStrandRes { get; set; }
-	        public Res ShearNumNeigh { get; set; }
-	        public List<int> Neighbors { get; set; }
-	        public List<Res> SideChainNeighbors { get; set; }
-	        public List<Res> BackboneNeighbors { get; set; }
-	        public int ChainNum { get; set; }
-	        public string ChainName { get; set; }
-	        public int StrandNum { get; set; }
-	        public double Dihedral { get; set; }
-	        public double Twist_next { get; set; }
-	        public double Twist_prev { get; set; }
-	        public int ResStrandNum { get; set; }// what number residue in the strand is it
-	        public double Coil2 { get; set; } // angle of 3 consecutive ca for the ca
-	        public double Coil1 { get; set; } // for the first ca
-	        public double Coil3 { get; set; } // for the third ca
-	        public double Radius { get; set; }  //distance from carbon alpha to axis
-	        public bool Inward { get; set; } // inward facing or outward facing
-	        public double Z { get; set; }
+            this.Neighbors = new List<int>();
+            this.Atoms = new List<Atom>();
+            this.SideChainNeighbors = new List<Res>();
+            this.BackboneNeighbors = new List<Res>();
+            // the coordinates of this carbon alpha -coordinates of the previous carbon alpha
+            this.Direction = new Vector3D();
+            // N C CA
+            this.BackboneCoords = new Dictionary<string, Vector3D>();
 
-	        public List<Atom> Atoms { get; set; }
-	        public Dictionary<string, Vector3D> BackboneCoords { get; set; } // N C CA
-	        public Vector3D Direction { get; set; } // the coordinates of this carbon alpha - coordinates of the previous carbon alpha
-	        public Vector3D SideChainDir { get; set; }
 
-	        //constructor
-	        public Res(ref AtomParser.AtomCategory _myAtomCat, int chainNum, int resNum, int FirstAtomNum)
-	        {
-	            this.Neighbors = new List<int>();
-	            this.Atoms = new List<Atom>();
-	            this.SideChainNeighbors = new List<Res>();
-	            this.BackboneNeighbors = new List<Res>();
-	            // the coordinates of this carbon alpha -coordinates of the previous carbon alpha
-	            this.Direction = new Vector3D();
-	            // N C CA
-	            this.BackboneCoords = new Dictionary<string, Vector3D>();
-            
+            this.SideChainDir = new Vector3D();
+            this.Z = 999;
+            this.ResNum = resNum; //count of residues - residue index
+            this.ChainNum = chainNum;
+            this.ChainName = _myAtomCat.ChainAtomList[chainNum].AuthAsymChain;
+            this.Twist_next = 999;
+            this.Twist_prev = 999;
+            this.Coil2 = 999;
+            this.Coil1 = 999;
+            this.Coil3 = 999;
+            this.Tilt = 999;
+            this.Radius = 999;
+            this.SSType = "X";
+            this.StrandNum = 99;
+            this.ThreeLetCode = _myAtomCat.ChainAtomList[chainNum].CartnAtoms[FirstAtomNum].residue;
+            if (this.ThreeLetCode == "MSE") this.ThreeLetCode = "MET";
+            this.OneLetCode = threeToOne(ThreeLetCode);
+            this.SeqID = Convert.ToInt32(_myAtomCat.ChainAtomList[chainNum].CartnAtoms[FirstAtomNum].authSeqId); //formerly authSeqID; resnum in the PDB
 
-	            this.SideChainDir = new Vector3D();
-	            this.Z = 999;
-	            this.ResNum = resNum; //count of residues - residue index
-	            this.ChainNum = chainNum;
-	            this.ChainName = _myAtomCat.ChainAtomList[chainNum].AuthAsymChain;
-	            this.Twist_next = 999;
-	            this.Twist_prev = 999;
-	            this.Coil2 = 999;
-	            this.Coil1 = 999;
-	            this.Coil3 = 999;
-	            this.Tilt = 999;
-	            this.Radius = 999;
-	            this.SSType = "X";
-	            this.StrandNum = 99;
-	            this.ThreeLetCode = _myAtomCat.ChainAtomList[chainNum].CartnAtoms[FirstAtomNum].residue;
-	            if (this.ThreeLetCode == "MSE") this.ThreeLetCode = "MET";
-	            this.OneLetCode = threeToOne(ThreeLetCode);
-	            this.SeqID = Convert.ToInt32(_myAtomCat.ChainAtomList[chainNum].CartnAtoms[FirstAtomNum].authSeqId); //formerly authSeqID; resnum in the PDB
+            //for (int atomctr = FirstAtomNum; atomctr < _myAtomCat.ChainAtomList[chainNum].cartnAtoms.Count; atomctr++) //changed to a while loop on 6-14-16 - works EXPONENTIALLY faster
+            int atomctr = FirstAtomNum;
+            while (_myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].seqId == _myAtomCat.ChainAtomList[chainNum].CartnAtoms[FirstAtomNum].seqId)
+            {
+                if (_myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].seqId == _myAtomCat.ChainAtomList[chainNum].CartnAtoms[FirstAtomNum].seqId)
+                {
+                    Vector3D coords = new Vector3D(_myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].xyz.X, _myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].xyz.Y, _myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].xyz.Z);
+                    Atom myAtom = new Atom(this.ThreeLetCode, coords, atomctr, _myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomName, _myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomType);
+                    Atoms.Add(myAtom); //collect info from myAtomCat
 
-	            //for (int atomctr = FirstAtomNum; atomctr < _myAtomCat.ChainAtomList[chainNum].cartnAtoms.Count; atomctr++) //changed to a while loop on 6-14-16 - works EXPONENTIALLY faster
-	            int atomctr = FirstAtomNum;
-	            while (_myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].seqId == _myAtomCat.ChainAtomList[chainNum].CartnAtoms[FirstAtomNum].seqId)
-	            {
-	                if (_myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].seqId == _myAtomCat.ChainAtomList[chainNum].CartnAtoms[FirstAtomNum].seqId)
-	                {
-	                    Vector3D coords = new Vector3D(_myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].xyz.X, _myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].xyz.Y, _myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].xyz.Z);
-	                    Atom myAtom = new Atom(this.ThreeLetCode, coords, atomctr, _myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomName, _myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomType);
-	                    Atoms.Add(myAtom); //collect info from myAtomCat
+                    if (_myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomName == "CA" || _myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomName == "C" || _myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomName == "N" || _myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomName == "O")
+                    {
+                        if (BackboneCoords.ContainsKey(_myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomName) != true)
+                        {
+                            this.BackboneCoords.Add(_myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomName, myAtom.Coords);
+                        }
+                        else
+                        {
+                            Console.WriteLine("IMPORTANT!!!!! Residue {0} has multiple ocupancy", this.SeqID);
+                        }
 
-	                    if (_myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomName == "CA" || _myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomName == "C" || _myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomName == "N" || _myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomName == "O")
-	                    {
-	                        if (BackboneCoords.ContainsKey(_myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomName) != true)
-	                        {
-	                            this.BackboneCoords.Add(_myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomName, myAtom.Coords);
-	                        }
-	                        else
-	                        {
-	                            Console.WriteLine("IMPORTANT!!!!! Residue {0} has multiple ocupancy", this.SeqID);
-	                        }
+                    }
+                    //Added 6-2-17 for loop purposes
+                    if (_myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomName == "CA")
+                    {
+                        this.BFacCA = _myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].bFac;
+                    }
 
-	                    }
-	                    //Added 6-2-17 for loop purposes
-	                    if (_myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].atomName == "CA")
-	                    {
-	                        this.BFacCA = _myAtomCat.ChainAtomList[chainNum].CartnAtoms[atomctr].bFac;
-	                    }
-
-	                }
-	                atomctr++;
-	                if (atomctr >= _myAtomCat.ChainAtomList[chainNum].cartnAtoms.Count) break;
-	            }
+                }
+                atomctr++;
+                if (atomctr >= _myAtomCat.ChainAtomList[chainNum].cartnAtoms.Count) break;
+            }
 
             //Added 5-9-16 to determine which direction sidechain is pointing from barrel; also sets the ResSeqID for using with neighbor functions
             foreach (Atom atom1 in this.Atoms)
@@ -180,7 +139,7 @@ namespace betaBarrelProgram
                     this.SideChainDir = this.Atoms[2].Coords - this.Atoms[0].Coords;
                     //Console.WriteLine("{0}\t{1}", this.ThreeLetCode, this.SideChainDir);
                 }
-                
+
             }
 
         }
@@ -288,4 +247,4 @@ namespace betaBarrelProgram
         }
     }
 
-  }
+}

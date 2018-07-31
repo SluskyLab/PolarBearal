@@ -24,7 +24,7 @@ namespace betaBarrelProgram
         public class MonoProtein : Protein
         {
 
-            public List<Chain> Chains { get; set; } = new List<Chain>();
+            public List<Chain> Chains = new List<Chain>();
             public int ChainCount { get; set; }
             public int totalResNum { get; set; }
             public string PdbName { get; set; }
@@ -46,7 +46,7 @@ namespace betaBarrelProgram
                     }
                     if (IsItProtein == true)
                     {
-                        Chain myChain = new Chain(ref _myAtomCat, chainNum, PdbName, true);
+                        Chain myChain = new Chain(ref _myAtomCat, chainNum, PdbName, true, Global.DB_DIR);
                         this.Chains.Add(myChain);
                         this.ChainCount++;
                     }
@@ -56,7 +56,7 @@ namespace betaBarrelProgram
             public MonoProtein(ref AtomParser.AtomCategory _myAtomCat, int chainNum, string PdbName)
             {
                 this.Chains = new List<Chain>();
-                Chain myChain = new Chain(ref _myAtomCat, chainNum, PdbName, true);
+                Chain myChain = new Chain(ref _myAtomCat, chainNum, PdbName, true, Global.DB_DIR);
                 this.Chains.Add(myChain);
 
 
@@ -96,6 +96,7 @@ namespace betaBarrelProgram
             public Vector3D NewCaxisPt { get; set; }
             public Vector3D OldCaxisPt { get; set; }
             public int ShearNum { get; set; }
+            public List<double> PrevTwists { get; set; }
 
             public static string path = Global.MONO_OUTPUT_DIR;
 
@@ -242,7 +243,7 @@ namespace betaBarrelProgram
 
                 /* ---------output information--------- */
 	            this.StrandLength = SharedFunctions.getStrandLengths(this.Strands, path, this.PdbName);
-	            this.PrevTwists = SharedFunctions.getTwist(this.Strands, path, this.PdbName);
+                this.PrevTwists = SharedFunctions.writeTwists(this.Strands, Global.MONO_OUTPUT_DIR, this.PdbName);
 
 	            /*string fileLocation6 = path + "\\ZCoords\\XYZCoords_" + this.PdbName + ".txt";
 	            using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileLocation6))
@@ -274,14 +275,13 @@ namespace betaBarrelProgram
 	                    }
 	                }
 	            }
-	            #endregion
 
 	            //DSSP has to be used to define strands before the strands are created; although I could clear and recreate them if necessary...
 	            //Dictionary<string, string> Loops = SharedFunctions.getLoopTurns(this.Strands, ref _myChain, path, this.PdbName);
-	            //SharedFunctions.writePymolScriptForLoops(Loops, Program.monooutDirectory, Program.MacmonoDBDir, ref _myChain, this.PdbName);
-	            //SharedFunctions.findLoopsHBondingPartnersGeomOnly(Loops, Program.monooutDirectory, ref _myChain, this.PdbName, false);
+                //SharedFunctions.writePymolScriptForLoops(Loops, Global.MONO_OUTPUT_DIR, Global.MACMONODBDIR, ref _myChain, this.PdbName);
+                //SharedFunctions.findLoopsHBondingPartnersGeomOnly(Loops, Global.MONO_OUTPUT_DIR, ref _myChain, this.PdbName, false);
 
-	            SharedFunctions.writePymolScriptForStrands(this.Strands, Program.monooutDirectory, Program.MacmonoDBDir, this.PdbName);
+                SharedFunctions.writePymolScriptForStrands(this.Strands, Global.MONO_OUTPUT_DIR, Global.MACMONODBDIR, this.PdbName);
 	            //writeAminoAcidsTypesToFile(ref _myChain, path);
 
 	            SharedFunctions.setInOut(this.Strands, path, this.PdbName, this.Axis, this.Ccentroid, this.Ncentroid);
@@ -331,7 +331,7 @@ namespace betaBarrelProgram
 	            //SharedFunctions.findHBondingPartnersGeomOnly(this.Strands, path, this.PdbName, false); //Modelling program-like implementation of hydrogen bonding
 	            //SharedFunctions.findAllNearNeighDistOnly(this.Strands, path, this.PdbName, ref _myChain);
 	            //this.Axis = this.Ccentroid - this.Ncentroid; //july3
-	            this.AvgTilt = SharedFunctions.getTiltsByAA(this.Strands, path, this.PdbName, this.Axis, ref Program.AADict);
+	            this.AvgTilt = SharedFunctions.getTiltsByAA(this.Strands, path, this.PdbName, this.Axis, ref Global.AADict);
 
 	            //getTyrVector(path, ref _myChain);
             
@@ -2092,7 +2092,7 @@ namespace betaBarrelProgram
 	        public List<double> StrandLength { get; set; }
 	        public int ShearNum { get; set; }
 
-	        public static string path = Program.soloutDirectory;
+	        public static string path = Global.SOL_OUTPUT_DIR;
 
 	        //barrel constructor 
 	        public SBarrel(Chain _myChain, Protein _myProtein)
@@ -2123,8 +2123,8 @@ namespace betaBarrelProgram
 	            }
 
 	            //SharedFunctions.writePymolScriptForStrands(this.Strands, Program.soloutDirectory, Program.MacsolDBDir, this.PdbName);
-	            this.PrevTwists = SharedFunctions.getTwist(this.Strands, path, this.PdbName);
-	            Dictionary<string, string> Loops = SharedFunctions.getLoopTurns(this.Strands, ref _myChain, Program.monooutDirectory, this.PdbName);
+	            this.PrevTwists = SharedFunctions.writeTwists(this.Strands, path, this.PdbName);
+                Dictionary<string, string> Loops = SharedFunctions.getLoopTurns(this.Strands, ref _myChain, Global.MONO_OUTPUT_DIR, this.PdbName);
 
 	            //find shear number July 22, 2014
 	            //int ShearNum = shearNum(ref _myChain);

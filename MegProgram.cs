@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using betaBarrel.AtomParser;
 using System.Collections;
 using System.IO;
 
-namespace betaBarrel
-{
-    class Program
-    {
-        //Change these locations and it will propagate to all other locations
+using betaBarrelProgram.AtomParser;
+using betaBarrelProgram.BarrelStructures;
+using betaBarrelProgram.Mono;
+using betaBarrelProgram.Poly;
 
-        public static string parameterFile = @"Z:\Documents\PhD\SluskyLab\PolarBearal\par_hbond_1.txt"; //This parameter file holds donor/acceptors in every amino acid
-        
+namespace betaBarrelProgram
+{
+    public static class Global
+    {
+        /*public static string parameterFile = @"Z:\Documents\PhD\SluskyLab\PolarBearal\par_hbond_1.txt"; //This parameter file holds donor/acceptors in every amino acid
+
         public static string polyDBDirectory = @"Z:\Documents\PhD\SluskyLab\PolyBarrelsDB\";
         public static string MacpolyDBDir = "/Users/meghan/Documents/PhD/SluskyLab/PolyBarrelsDB/";
         //public static string polyDBDirectory = @"Z:\Documents\PhD\SluskyLab\RenumbFrom1PDBs\";
@@ -41,80 +43,95 @@ namespace betaBarrel
 
         public static string solDBDirectory = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\LoopTwists\SolubleTwists\ThorntonDBMod\";
         public static string MacsolDBDir = "/Users/meghan/Documents/PhD/SluskyLab/BarrelChars/LoopTurns/LoopTwists/SolubleTwists/ThorntonDBMod/";
-        public static string soloutDirectory = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\LoopTwists\SolubleTwists\";
+        public static string soloutDirectory = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\LoopTwists\SolubleTwists\";*/
 
-        public static Dictionary<string, AminoAcid> AADict = SharedFunctions.makeAADict();
+        public static string DB_DIR = "U:/v5/pdb_files/"; //this also needs to have DSSP files in it as well
+        public static string OUTPUT_DIR = "U:/v4/Pymol/";
+
+        public static string POLY_DB_DIR = @"\\psf\Home\Desktop\SluskyLab\betaBarrelProgram\betaBarrelOutput\PolyBarrelsDB\";
+        public static string MACPOLYDBDIR = @"\\psf\Home\Desktop\SluskyLab\betaBarrelProgram\betaBarrelOutput\PolyBarrelsDB\PolyDBList_v4.txt";
+        public static string POLY_OUTPUT_DIR = @"\\psf\Home\Desktop\SluskyLab\betaBarrelProgram\betaBarrelOutput\PolyBarrels\";
+
+        public static string MONO_DB_DIR = @"\\psf\Home\Desktop\SluskyLab\betaBarrelProgram\betaBarrelOutput\MonoBarrelsDB\";
+        public static string MACMONODBDIR = @"\\psf\Home\Desktop\SluskyLab\betaBarrelProgram\betaBarrelOutput\MonoBarrelsDB\MonoDBList_v4_85.txt";
+        public static string MONO_OUTPUT_DIR = @"\\psf\Home\Desktop\SluskyLab\betaBarrelProgram\betaBarrelOutput\MonoBarrels\";
+
+        public static string SOL_DB_DIR = @"\\psf\Home\Desktop\SluskyLab\betaBarrelProgram\betaBarrelOutput\MonoBarrelsDB\";
+        public static string MACSOLDBDIR = @"\\psf\Home\Desktop\SluskyLab\betaBarrelProgram\betaBarrelOutput\MonoBarrelsDB\MonoDBList_v4_85.txt";
+        public static string SOL_OUTPUT_DIR = @"\\psf\Home\Desktop\SluskyLab\betaBarrelProgram\betaBarrelOutput\MonoBarrels\";
+
+        public static string parameterFile = @"\\psf\Home\Desktop\SluskyLab\betaBarrelProgram\par_hbond_1.txt"; //This parameter file holds donor/acceptors in every amino acid
+        public static Dictionary<string, AminoAcid> AADict = betaBarrelProgram.SharedFunctions.makeAADict();
         //The values in this dictionary are transcribed from CHARMM36 all-hydrogen topology file for proteins, May 2011
         public static Dictionary<Tuple<string, string>, double> partialChargesDict = new Dictionary<Tuple<string, string>, double>
                 {
-                    {new Tuple<string, string>("ARG", "HE"), 0.44}, 
-                    {new Tuple<string, string>("ARG", "NE"), -0.70}, 
-                    {new Tuple<string, string>("ARG", "NH1"), -0.80}, 
-                    {new Tuple<string, string>("ARG", "HH11"), 0.46}, 
-                    {new Tuple<string, string>("ARG", "HH12"), 0.46}, 
-                    {new Tuple<string, string>("ARG", "NH2"), -0.80}, 
-                    {new Tuple<string, string>("ARG", "HH21"), 0.46}, 
+                    {new Tuple<string, string>("ARG", "HE"), 0.44},
+                    {new Tuple<string, string>("ARG", "NE"), -0.70},
+                    {new Tuple<string, string>("ARG", "NH1"), -0.80},
+                    {new Tuple<string, string>("ARG", "HH11"), 0.46},
+                    {new Tuple<string, string>("ARG", "HH12"), 0.46},
+                    {new Tuple<string, string>("ARG", "NH2"), -0.80},
+                    {new Tuple<string, string>("ARG", "HH21"), 0.46},
                     {new Tuple<string, string>("ARG", "HH22"), 0.46},
 
-                    {new Tuple<string, string>("ASN", "ND2"), -0.62}, 
-                    {new Tuple<string, string>("ASN", "HD21"), 0.32}, 
+                    {new Tuple<string, string>("ASN", "ND2"), -0.62},
+                    {new Tuple<string, string>("ASN", "HD21"), 0.32},
                     {new Tuple<string, string>("ASN", "HD22"), 0.40},
-                    {new Tuple<string, string>("ASN", "CG"), 0.55}, 
+                    {new Tuple<string, string>("ASN", "CG"), 0.55},
                     {new Tuple<string, string>("ASN", "OD1"), -0.55},
 
-                    {new Tuple<string, string>("ASP", "CG"), 0.62}, 
+                    {new Tuple<string, string>("ASP", "CG"), 0.62},
                     {new Tuple<string, string>("ASP", "OD1"), -0.76},
                     {new Tuple<string, string>("ASP", "OD2"), -0.76},
 
-                    {new Tuple<string, string>("CYS", "HG"), 0.16}, 
+                    {new Tuple<string, string>("CYS", "HG"), 0.16},
                     {new Tuple<string, string>("CYS", "SG"), -0.23},
 
-                    {new Tuple<string, string>("GLN", "NE2"), -0.62}, 
-                    {new Tuple<string, string>("GLN", "HE21"), 0.32}, 
+                    {new Tuple<string, string>("GLN", "NE2"), -0.62},
+                    {new Tuple<string, string>("GLN", "HE21"), 0.32},
                     {new Tuple<string, string>("GLN", "HE22"), 0.30},
-                    {new Tuple<string, string>("GLN", "CD"), 0.55}, 
+                    {new Tuple<string, string>("GLN", "CD"), 0.55},
                     {new Tuple<string, string>("GLN", "OE1"), -0.55},
 
-                    {new Tuple<string, string>("GLU", "CD"), 0.62}, 
+                    {new Tuple<string, string>("GLU", "CD"), 0.62},
                     {new Tuple<string, string>("GLU", "OE1"), -0.76},
                     {new Tuple<string, string>("GLU", "OE2"), -0.76},
 
                     {new Tuple<string, string>("GLY", "O"), -0.51},
 
-                    {new Tuple<string, string>("HIS", "NE2"), -0.36}, 
-                    {new Tuple<string, string>("HIS", "HE2"), 0.32}, 
+                    {new Tuple<string, string>("HIS", "NE2"), -0.36},
+                    {new Tuple<string, string>("HIS", "HE2"), 0.32},
                     {new Tuple<string, string>("HIS", "ND1"), -0.70},
 
-                    {new Tuple<string, string>("LYS", "NZ"), -0.30}, 
+                    {new Tuple<string, string>("LYS", "NZ"), -0.30},
                     {new Tuple<string, string>("LYS", "HZ1"), 0.33},
                     {new Tuple<string, string>("LYS", "HZ2"), 0.33},
                     {new Tuple<string, string>("LYS", "HZ3"), 0.33},
 
-                    {new Tuple<string, string>("SER", "HG1"), 0.43}, 
+                    {new Tuple<string, string>("SER", "HG1"), 0.43},
                     {new Tuple<string, string>("SER", "OG1"), -0.66},
- 
-                    {new Tuple<string, string>("THR", "HG1"), 0.43}, 
-                    {new Tuple<string, string>("THR", "OG1"), -0.66}, 
 
-                    {new Tuple<string, string>("TRP", "NE1"), -0.51}, 
+                    {new Tuple<string, string>("THR", "HG1"), 0.43},
+                    {new Tuple<string, string>("THR", "OG1"), -0.66},
+
+                    {new Tuple<string, string>("TRP", "NE1"), -0.51},
                     {new Tuple<string, string>("TRP", "HE1"), 0.37},
 
-                    {new Tuple<string, string>("TYR", "HH"), 0.43}, 
+                    {new Tuple<string, string>("TYR", "HH"), 0.43},
                     {new Tuple<string, string>("TYR", "OH"), -0.54}
 
                 };
 
+    }
+
+    class Program
+    {
         static public void menu()
         {
             Console.WriteLine("1. Run PolarBearal");
-            Console.WriteLine("2. Run Ellipse");
-            Console.WriteLine("3. Run Ellipse Database");
-            Console.WriteLine("4. Run Soluble Database");
-            Console.WriteLine("5. Run single Protein");
-            Console.WriteLine("6. Check out organisms");
-            Console.WriteLine("8. Run PBarrel");
-            Console.WriteLine("7. ");
-
+            Console.WriteLine("2. Run Single Protein");
+            Console.WriteLine("3. Run Soluble Database");
+            Console.WriteLine("4. Run PolyBarrel");
         }
 
         static void Main(string[] args)
@@ -128,27 +145,18 @@ namespace betaBarrel
                 switch (choice)
                 {
                     case "1":
-                        PolarBearal.RunPolarBearal();
+                        RunPolarBearal();
                         break;
                     case "2":
-                        BarrelEllipse.RollTide();
+                        CreateBetaBarrelProtein();
                         break;
-                    case "4":
+                    case "3":
                         startSolubleBarrel();
                         break;
-                    case "5":
-                        runProtein();
-                        break;
-                    case "6":
-                        getOrganism newO = new getOrganism();
-                        newO.runOrganism();
-                        break;
-                    case "8":
+                    case "4":
                         startPolyBarrel();
                         break;
-                    default:
-                        choice = "7";
-                        break;
+                    
                 }
             }
 
@@ -158,93 +166,144 @@ namespace betaBarrel
             return;
         }
 
-        public static void runProtein()
+        static public void CreateBetaBarrelProtein()
         {
             Dictionary<string, int> pdbBeta = new Dictionary<string, int>();
             Dictionary<string, AminoAcid> AADict = SharedFunctions.makeAADict();
 
-            Console.Write("\nPDBid: ");
-            string input = Console.ReadLine();
-            //string fileName = input;
+            Console.WriteLine("please give pdb:");
+            string insert = Console.ReadLine();
+            string fileName = insert + ".xml";
 
-            Program.runBetaBarrel(input, ref AADict, ref partialChargesDict);
-            
+            runBetaBarrel(fileName, ref AADict, ref Global.partialChargesDict);
         }
 
-        public static Barrel runBetaBarrel(string fileName, ref Dictionary<string, AminoAcid> _aaDict, ref Dictionary<Tuple<string, string>, double> partialChargesDict)
-            {
-                //new peptide analysis
-                //PeptideAnalysis myModule = new PeptideAnalysis();
-                Directory.SetCurrentDirectory(monoDBDirectory);
 
-                //insert name of xml file for doing things
-                string pdbXMLfile = fileName + ".xml";
-                string pdbName = fileName;
-                AtomParser.AtomCategory myAtomCat = new AtomParser.AtomCategory();
-
-                //Test to see if there is an xml file for this pdb ID name; if not, attempt to use the pdb file instead
-                if (File.Exists(pdbXMLfile))
-                {
-                    AtomParser.XmlAtomParser myXMLparser = new AtomParser.XmlAtomParser();
-
-                    {
-                        Console.WriteLine("opened {0}", pdbXMLfile);
-                        string emptyString = ""; // tells it to pass all atoms
-                        myXMLparser.ParseXmlFileAndPassStorage(pdbXMLfile, emptyString, ref myAtomCat);
-                    }
-                }
-                else
-                {
-                    string fileName2 = pdbName + ".pdb";
-                    Console.WriteLine("opened {0}", fileName2);
-                    myAtomCat = readPdbFile(fileName2, ref partialChargesDict);
-                }
-            pdbName = pdbName.Substring(0, 4).ToUpper();
-
-                int chainNum = 0;
-                //if (pdbName == "3RFZ" || pdbName == "3KVN") chainNum = 1;
-
-                int stop = myAtomCat.ChainAtomList.Count();
-                Console.Write("Protein Class {0}", chainNum);
-
-                Protein newProt = new Protein(ref myAtomCat, chainNum, pdbName, monoDBDirectory);
-
-                //Console.WriteLine("ChainNum {0}", chainNum);
-
-                Console.Write("creating barrel class..");
-
-                Barrel myBarrel = new Barrel(newProt.Chains[0], newProt);
-
-                //if (myBarrel.Strands.Count < 8) return;
-            // myBarrel.getTiltsByAA(ref _aaDict);
-            //myBarrel.getTwist(ref _aaDict);
-
-
-            //PolarBearal polarTest = new PolarBearal(ref myBarrel);
-
-            return (myBarrel);
-            }
-
-        static public void startPolyBarrel()
+        static public void RunPolarBearal()
         {
-            //for making barrel
             Dictionary<string, int> pdbBeta = new Dictionary<string, int>();
-            
-            //PDBIDs that will be run
-            string fileOfPDBs = polyDBDirectory + "PolyDBList_v4.txt"; //input file with list of polymeric xml files
-            //string fileOfPDBs = polyoutDirectory + "OtherBarrelsList.txt";
-    
+
+            //string fileOfPDBs = @"Z:\Documents\PhD\SluskyLab\MonoDB\MonoDBAlts.txt"; //input file with list of xml files
+            //string fileOfPDBs = @"Z:\Documents\PhD\SluskyLab\8-12Scaffolds\ScaffoldListPB.txt"; //input file with list of xml files
+            string fileOfPDBs = @"Z:\Documents\PhD\SluskyLab\MonoDB\MonoDBList_v5_85.txt"; //input file with list of xml files
             if (File.Exists(fileOfPDBs))
             {
                 using (StreamReader sr = new StreamReader(fileOfPDBs))
                 {
                     String line;
-                    string fileLocation2 = polyoutDirectory + "AllBarrelChar.txt";
+                    string fileLocation2 = Global.MONO_OUTPUT_DIR + "AllBarrelChar.txt";
                     using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileLocation2))
                     {
-                        string newLine = "PDB" + "\t\t" + "Total Chains" + "\t" + "Total Strands" + "\t" + "Length" + "\t" + "AvgLength" + "\t" + "MinLength" + "\t" + "MaxLength" + "\t" + "Radius" + "\t" + "Barrel Tilt";
+                        string newLine = "PDB" + "\t\t" + "Total Strands" + "\t" + "Length" + "\t" + "AvgLength" + "\t" + "MinLength" + "\t" + "MaxLength" + "\t" + "Radius" + "\t" + "Barrel Tilt";
                         file.WriteLine(newLine);
-                    // Read and display lines from the file until the end of the file is reached.
+                        // Read and display lines from the file until the end of the file is reached.
+                        while ((line = sr.ReadLine()) != null)
+                        {
+                            string[] splitLine = line.Split(new char[] { ' ', '\t', ',' });
+                            string pdb = splitLine[0];
+                            //Console.Write(pdb);
+                            if (pdb != "IDs")
+                            {
+                                string fileName = pdb;
+                                //string fileName = pdb + ".pdb";
+                                Barrel myBarrel = runBetaBarrel(fileName, ref Global.AADict, ref Global.partialChargesDict);
+                                string char1 = myBarrel.PdbName;
+                                string char2 = myBarrel.Axis.Length.ToString();
+                                string char7 = myBarrel.StrandLength.Average().ToString();
+                                string char8 = myBarrel.StrandLength.Min().ToString();
+                                string char9 = myBarrel.StrandLength.Max().ToString();
+                                string char3 = myBarrel.AvgRadius.ToString();
+                                string char4 = myBarrel.Strands.Count.ToString();
+                                string char5 = myBarrel.AvgTilt.ToString();
+                                string char6 = myBarrel.ShearNum.ToString();
+                                string char10 = myBarrel.PrevTwists.Average().ToString();
+                                newLine = char1 + "\t" + char4 + "\t" + char2 + "\t" + char7 + "\t" + char8 + "\t" + char9 + "\t" + char3 + "\t" + char5 + "\t" + char6 + "\t" + char10;
+                                file.WriteLine(newLine);
+                                //Console.WriteLine("Number of Proteins: {0} \t AAs: {1} \t Double Checked Directions: {2}", totalProteins, totalAAs, numDoubleChecks);
+                            }
+                        }
+                    }
+                }
+                //Console.WriteLine("Number of Proteins: {0} \t AAs: {1} \t Double Checked Directions: {2}", totalProteins, totalAAs, numDoubleChecks);
+            }
+            else
+            {
+                Console.WriteLine("I am in {0}", System.IO.Directory.GetCurrentDirectory());
+                Console.WriteLine("could not open {0}", fileOfPDBs);
+                Console.ReadLine();
+
+            }
+        }
+
+        public static Barrel runBetaBarrel(string pdb, ref Dictionary<string, AminoAcid> _aaDict, ref Dictionary<Tuple<string, string>, double> partialChargesDict)
+        {
+            Directory.SetCurrentDirectory(Global.MONO_DB_DIR);
+
+            string PDB = pdb.Substring(0, 4).ToUpper();
+            string pdbFileName = PDB + ".pdb";
+            AtomParser.AtomCategory myAtomCat = new AtomParser.AtomCategory();
+
+            if (File.Exists(pdbFileName))
+            {
+                Console.WriteLine("opened {0}", pdbFileName);
+                myAtomCat = readPdbFile(pdbFileName, ref Global.partialChargesDict);
+            }
+
+            int chainNum = 0;
+
+            int stop = myAtomCat.ChainAtomList.Count();
+            Console.Write("Protein Class {0}", chainNum);
+
+            betaBarrelProgram.BarrelStructures.Protein newProt = new MonoProtein(ref myAtomCat, chainNum, PDB);
+
+            Console.Write("creating barrel class..");
+
+            Barrel myBarrel = new MonoBarrel(newProt.Chains[0], newProt);
+
+            return (myBarrel);
+        }
+
+        public static PolyBarrel runPBetaBarrel(string pdb, ref Dictionary<string, AminoAcid> _aaDict)
+        {
+            Directory.SetCurrentDirectory(Global.POLY_DB_DIR);
+
+            string pdbFileName = pdb + ".pdb";
+            AtomParser.AtomCategory myAtomCat = new AtomParser.AtomCategory();
+
+            if (File.Exists(pdbFileName))
+            {
+                Console.WriteLine("opened {0}", pdbFileName);
+                myAtomCat = readPdbFile(pdbFileName, ref Global.partialChargesDict);
+            }
+
+            PolyProtein newProt = new PolyProtein(ref myAtomCat, pdb); //For considering all chains
+
+            Console.WriteLine("creating barrel class..");
+
+            PolyBarrel myBarrel = new PolyBarrel(newProt, Global.POLY_OUTPUT_DIR, Global.POLY_DB_DIR);
+
+            return (myBarrel);
+        }
+
+        static public void startPolyBarrel()
+        {
+            //for making barrel
+            Dictionary<string, int> pdbBeta = new Dictionary<string, int>();
+
+            //PDBIDs that will be run
+            string fileOfPDBs = Global.POLY_DB_DIR + "PolyDBList.txt"; //input file with list of polymeric xml files
+
+            if (File.Exists(fileOfPDBs))
+            {
+                using (StreamReader sr = new StreamReader(fileOfPDBs))
+                {
+                    String line;
+                    string fileLocation2 = Global.POLY_OUTPUT_DIR + "AllBarrelChar.txt";
+                    using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileLocation2))
+                    {
+                        string newLine = "PDB" + "\t\t" + "Length" + "\t" + "AvgLength" + "\t" + "MinLength" + "\t" + "MaxLength" + "\t" + "Radius" + "\t\t" + "Total Chains" + "\t" + "Total Strands" + "\t" + "Barrel Tilt";
+                        file.WriteLine(newLine);
+                        // Read and display lines from the file until the end of the file is reached.
                         while ((line = sr.ReadLine()) != null)
                         {
                             string[] splitLine = Array.FindAll<string>(((string)line).Split(
@@ -252,8 +311,8 @@ namespace betaBarrel
                             string pdb = splitLine[0];
                             if (pdb != "IDs")
                             {
-                                PBarrel myBarrel = runPBetaBarrel(pdb, ref AADict);
-                                /*string char1 = myBarrel.PdbName;
+                                PolyBarrel myBarrel = runPBetaBarrel(pdb, ref Global.AADict);
+                                string char1 = myBarrel.PdbName;
                                 string char2 = myBarrel.Axis.Length.ToString();
                                 string char7 = myBarrel.StrandLength.Average().ToString();
                                 string char8 = myBarrel.StrandLength.Min().ToString();
@@ -262,12 +321,12 @@ namespace betaBarrel
                                 string char4 = myBarrel.protoBarrel.Count().ToString();
                                 string char5 = myBarrel.Strands.Count().ToString();
                                 string char6 = myBarrel.AvgTilt.ToString();
-                                newLine = char1 + "\t" + char4 + "\t" + char5 + "\t" + char2 + "\t" + char7 + "\t" + char8 + "\t" + char9 + "\t" + char3 + "\t" + char6; 
-                                file.WriteLine(newLine);*/
+                                newLine = char1 + "\t" + char2 + "\t" + char7 + "\t" + char8 + "\t" + char9 + "\t" + char3 + "\t" + char4 + "\t" + char5 + "\t" + char6;
+                                file.WriteLine(newLine);
                             }
                         }
                     }
-                    
+
                 }
             }
             else
@@ -278,62 +337,20 @@ namespace betaBarrel
             }
         }
 
-        public static PBarrel runPBetaBarrel(string pdb, ref Dictionary<string, AminoAcid> _aaDict)
-        {
-            //Be sure that your chains are in alphabetical order in PDB structure; otherwise, alter the names so that they are or PBarrel will not know what position they belong in.
-            //new peptide analysis
-            //PeptideAnalysis myModule = new PeptideAnalysis();
-            Directory.SetCurrentDirectory(polyDBDirectory);
-            
-            //insert name of xml file for doing things
-            string pdbXMLfile = pdb + ".xml";
-            string pdbName = pdb;
-            AtomParser.AtomCategory myAtomCat = new AtomParser.AtomCategory();
-            
-            //Test to see if there is an xml file for this pdb ID name; if not, attempt to use the pdb file instead
-            if (File.Exists(pdbXMLfile))
-            {
-                AtomParser.XmlAtomParser myXMLparser = new AtomParser.XmlAtomParser();
-                
-                {
-                    Console.WriteLine("opened {0}", pdbXMLfile);
-                    string emptyString = ""; // tells it to pass all atoms
-                    myXMLparser.ParseXmlFileAndPassStorage(pdbXMLfile, emptyString, ref myAtomCat);
-
-                }
-            }
-            else
-            {
-                string fileName = pdb + ".pdb";
-                Console.WriteLine("opened {0}", fileName);
-                myAtomCat = readPdbFile(fileName, ref partialChargesDict);
-            }
-            
-            //PolyProtein newProt = new PolyProtein(ref myAtomCat, 0, pdbName); // For considering only One chain at a time in polymeric beta barrel
-            PolyProtein newProt = new PolyProtein(ref myAtomCat, pdbName); //For considering all chains
-
-            Console.WriteLine("creating barrel class..");
-
-            PBarrel myBarrel = new PBarrel(newProt, polyoutDirectory, polyDBDirectory);
-
-            return (myBarrel);
-
-        }
-
         static public void startSolubleBarrel()
         {
             //for making barrel
             Dictionary<string, int> pdbBeta = new Dictionary<string, int>();
 
             //PDBIDs that will be run
-            string fileOfPDBs = solDBDirectory + "Thornton1989.txt"; //input file with list of pdb files
+            string fileOfPDBs = Global.SOL_DB_DIR + "Thornton1989.txt"; //input file with list of pdb files
 
             if (File.Exists(fileOfPDBs))
             {
                 using (StreamReader sr = new StreamReader(fileOfPDBs))
                 {
                     String line;
-                    string fileLocation2 = soloutDirectory + "AllSolubleChar.txt";
+                    string fileLocation2 = Global.SOL_OUTPUT_DIR + "AllSolubleChar.txt";
                     using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileLocation2))
                     {
                         string newLine = "PDB" + "\t\t" + "Total Chains" + "\t" + "Total Strands" + "\t" + "Length" + "\t" + "AvgLength" + "\t" + "MinLength" + "\t" + "MaxLength";
@@ -346,7 +363,7 @@ namespace betaBarrel
                             string pdb = splitLine[0];
                             if (pdb != "IDs")
                             {
-                                SBarrel myBarrel = runSolBarrel(pdb, ref AADict, ref partialChargesDict);
+                                SBarrel myBarrel = runSolBarrel(pdb, ref Global.AADict, ref Global.partialChargesDict);
                                 /*string char1 = myBarrel.PdbName;
                                 string char2 = myBarrel.Axis.Length.ToString();
                                 string char7 = myBarrel.StrandLength.Average().ToString();
@@ -372,7 +389,7 @@ namespace betaBarrel
 
         public static SBarrel runSolBarrel(string pdb, ref Dictionary<string, AminoAcid> _aaDict, ref Dictionary<Tuple<string, string>, double> partialChargesDict)
         {
-            Directory.SetCurrentDirectory(solDBDirectory);
+            Directory.SetCurrentDirectory(Global.SOL_DB_DIR); 
 
             string fileName2 = pdb + ".pdb";
             Console.WriteLine("opened {0}", fileName2);
@@ -387,7 +404,7 @@ namespace betaBarrel
             int stop = myAtomCat.ChainAtomList.Count();
             Console.Write("Protein Class {0}", chainNum);
 
-            Protein newProt = new Protein(ref myAtomCat, chainNum, pdbName, solDBDirectory);
+            Protein newProt = new MonoProtein(ref myAtomCat, chainNum, pdbName);
 
             //Console.WriteLine("ChainNum {0}", chainNum);
 
@@ -397,6 +414,7 @@ namespace betaBarrel
 
             return (myBarrel);
         }
+
             //extracts atoms from pdb file
             public static AtomCategory readPdbFile(string pdbfilename, ref Dictionary<Tuple<string, string>, double> partialCharges)
             {

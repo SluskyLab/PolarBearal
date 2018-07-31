@@ -15,7 +15,6 @@ using System.Collections.Generic;
 using System.Linq;
 using betaBarrelProgram.BarrelStructures;
 using betaBarrelProgram.Mono;
-using betaBarrelProgram.Poly;
 using System.IO;
 using System.Windows.Media.Media3D;
 
@@ -27,78 +26,7 @@ namespace betaBarrelProgram
 {
     public class SharedFunctions
     {
-        public static void runBetaBarrel(string pdb, ref Protein m_Protein, ref Barrel m_Barrel)
-        {
-            try {
-                Directory.SetCurrentDirectory(Global.MONO_DB_DIR);
-                string PDB = pdb.Substring(0, 4).ToUpper();
-                string pdbFileName = PDB + ".pdb";
-
-                if (File.Exists(pdbFileName))
-                {
-                    AtomParser.AtomCategory myAtomCat = new AtomParser.AtomCategory();
-                    ////Console.WriteLine("opened {0}", pdbFileName);
-                    myAtomCat = Program.readPdbFile(pdbFileName, ref Global.partialChargesDict);
-                    int chainNum = 0;
-
-                    int stop = myAtomCat.ChainAtomList.Count();
-                    ////Console.Write("Protein Class {0}", chainNum);
-
-                    m_Protein = new MonoProtein(ref myAtomCat, chainNum, PDB);
-
-                    ////Console.Write("creating barrel class..");
-
-                    m_Barrel = new MonoBarrel(m_Protein.Chains[0], m_Protein);
-                }
-                else
-                {
-                    Directory.SetCurrentDirectory(Global.POLY_DB_DIR);
-
-                    pdbFileName = pdb.Substring(0, 4).ToUpper() + ".pdb";
-                    if (File.Exists(pdbFileName))
-                    {
-                        AtomParser.AtomCategory myAtomCat = new AtomParser.AtomCategory();
-                        //Console.WriteLine("opened {0}", pdbFileName);
-                        myAtomCat = Program.readPdbFile(pdbFileName, ref Global.partialChargesDict);
-
-                        PolyProtein newProt = new PolyProtein(ref myAtomCat, pdb); //For considering all chains
-
-                        //Console.WriteLine("creating barrel class..");
-                        m_Protein = newProt;
-                        m_Barrel = new PolyBarrel(newProt, Global.POLY_OUTPUT_DIR, Global.POLY_DB_DIR);
-                    }
-                    else
-                    {
-                        pdbFileName = pdb.Substring(0, 4).ToLower() + ".pdb";
-                        if (File.Exists(pdbFileName))
-                        {
-                            AtomParser.AtomCategory myAtomCat = new AtomParser.AtomCategory();
-                            //Console.WriteLine("opened {0}", pdbFileName);
-                            myAtomCat = Program.readPdbFile(pdbFileName, ref Global.partialChargesDict);
-
-                            //Console.WriteLine("opened {0}", pdbFileName);
-                            myAtomCat = Program.readPdbFile(pdbFileName, ref Global.partialChargesDict);
-
-                            PolyProtein newProt = new PolyProtein(ref myAtomCat, pdb); //For considering all chains
-
-                            //Console.WriteLine("creating barrel class..");
-                            m_Protein = newProt;
-                            m_Barrel = new PolyBarrel(newProt, Global.POLY_OUTPUT_DIR, Global.POLY_DB_DIR);
-                        }
-                        else
-                        {
-
-                            //Console.WriteLine("could not find {0}", pdbFileName);
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                //Console.WriteLine("could not run: " + pdb);
-            }
-        }
-
+        
         public static Vector3D sete1(Atom atomB, Vector3D atomC, Vector3D atomD, double angle, double dihedral)
         {
             Vector3D uCB = -(atomB.Coords - atomC);
@@ -1619,6 +1547,132 @@ namespace betaBarrelProgram
 
                 }
             }
+        }
+
+        public static List<double> writeTwists(List<Strand> strandlist, string outputDirectory, string pdbName)//, ref Dictionary<string, AminoAcid> _aaDict)
+        {
+            //returns theta as definied by Murzin 1994
+            List<double> all_prev_twist = new List<double>();
+            List<double> all_next_twist = new List<double>();
+            // first determine the relevant position on the next strand
+            for (int strandCtr = 0; strandCtr < strandlist.Count; strandCtr++)
+            {
+                for (int resCtr = 0; resCtr < strandlist[strandCtr].Residues.Count; resCtr++)
+                {
+                    double closestDistance = 5.75;
+                    Vector3D myResCoords = new Vector3D();
+                    myResCoords = strandlist[strandCtr].Residues[resCtr].BackboneCoords["CA"];
+                    //set closest previous strand residue
+                    if (strandCtr != 0)
+                    {
+                        for (int prevStrandResCtr = 0; prevStrandResCtr < strandlist[strandCtr - 1].Residues.Count; prevStrandResCtr++)
+                        {
+                            double currentDistance = (myResCoords - strandlist[strandCtr - 1].Residues[prevStrandResCtr].BackboneCoords["CA"]).Length;
+                            if (currentDistance < closestDistance)
+                            {
+                                closestDistance = currentDistance;
+                                strandlist[strandCtr].Residues[resCtr].previousStrandRes = strandlist[strandCtr - 1].Residues[prevStrandResCtr];
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int prevStrandResCtr = 0; prevStrandResCtr < strandlist[strandlist.Count - 1].Residues.Count; prevStrandResCtr++)
+                        {
+                            double currentDistance = (myResCoords - strandlist[strandlist.Count - 1].Residues[prevStrandResCtr].BackboneCoords["CA"]).Length;
+                            if (currentDistance < closestDistance)
+                            {
+                                closestDistance = currentDistance;
+                                strandlist[strandCtr].Residues[resCtr].previousStrandRes = strandlist[strandlist.Count - 1].Residues[prevStrandResCtr];
+                            }
+                        }
+                    }
+
+                    //set closest next strand residue
+                    closestDistance = 5.75;
+                    if (strandCtr != strandlist.Count - 1)
+                    {
+                        for (int nextStrandResCtr = 0; nextStrandResCtr < strandlist[strandCtr + 1].Residues.Count; nextStrandResCtr++)
+                        {
+                            double currentDistance = (myResCoords - strandlist[strandCtr + 1].Residues[nextStrandResCtr].BackboneCoords["CA"]).Length;
+                            if (currentDistance < closestDistance)
+                            {
+                                closestDistance = currentDistance;
+                                strandlist[strandCtr].Residues[resCtr].nextStrandRes = strandlist[strandCtr + 1].Residues[nextStrandResCtr];
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int nextStrandResCtr = 0; nextStrandResCtr < strandlist[0].Residues.Count; nextStrandResCtr++)
+                        {
+                            double currentDistance = (myResCoords - strandlist[0].Residues[nextStrandResCtr].BackboneCoords["CA"]).Length;
+                            if (currentDistance < closestDistance)
+                            {
+                                closestDistance = currentDistance;
+                                strandlist[strandCtr].Residues[resCtr].nextStrandRes = strandlist[0].Residues[nextStrandResCtr];
+                            }
+                        }
+                    }
+                }
+            }
+            //then determine the dihedral angle
+            string fileLocation3 = outputDirectory + "Twists\\PrevTwist_" + pdbName + ".txt";
+            string fileLocation4 = outputDirectory + "Twists\\NextTwist_" + pdbName + ".txt";
+
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileLocation3, true))
+            {
+                using (System.IO.StreamWriter file2 = new System.IO.StreamWriter(fileLocation4, true))
+                {
+                    for (int strandCtr = 0; strandCtr < strandlist.Count; strandCtr++)
+                    {
+                        for (int resCtr = 0; resCtr < strandlist[strandCtr].Residues.Count; resCtr++)
+                        {
+
+                            Res myRes = strandlist[strandCtr].Residues[resCtr];
+                            if (resCtr + 1 < strandlist[strandCtr].Residues.Count)
+                            {
+
+                                Vector3D c1 = new Vector3D();
+                                Vector3D c2 = new Vector3D();
+                                Vector3D c3 = new Vector3D();
+                                Vector3D c4 = new Vector3D();
+                                Vector3D c5 = new Vector3D();
+                                Vector3D c6 = new Vector3D();
+
+                                c3 = strandlist[strandCtr].Residues[resCtr].BackboneCoords["CA"];
+                                c4 = strandlist[strandCtr].Residues[resCtr + 1].BackboneCoords["CA"];
+
+                                if (strandlist[strandCtr].Residues[resCtr].previousStrandRes != null && strandlist[strandCtr].Residues[resCtr].previousStrandRes != null && myRes.previousStrandRes.ResStrandNum != 0 && resCtr + 1 < strandlist[strandCtr].Residues.Count)
+                                {
+                                    Strand previousStrand = strandlist[strandlist[strandCtr].Residues[resCtr].previousStrandRes.StrandNum];
+                                    c1 = previousStrand.Residues[myRes.previousStrandRes.ResStrandNum - 1].BackboneCoords["CA"];
+                                    c2 = previousStrand.Residues[myRes.previousStrandRes.ResStrandNum].BackboneCoords["CA"];
+                                    strandlist[strandCtr].Residues[resCtr].Twist_prev = CalculateTorsion(c1, c2, c3, c4);
+                                    double distance = (c2 - c3).Length;
+                                    file.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}", previousStrand.Residues[myRes.previousStrandRes.ResStrandNum - 1].SeqID, previousStrand.Residues[myRes.previousStrandRes.ResStrandNum].SeqID, strandlist[strandCtr].Residues[resCtr].SeqID, strandlist[strandCtr].Residues[resCtr + 1].SeqID, strandlist[strandCtr].Residues[resCtr].Twist_prev, distance, strandCtr, previousStrand.StrandNum);
+                                    all_prev_twist.Add(strandlist[strandCtr].Residues[resCtr].Twist_prev);
+                                }
+                                if (strandlist[strandCtr].Residues[resCtr].nextStrandRes != null && strandlist[strandCtr].Residues[resCtr].nextStrandRes != null && myRes.nextStrandRes.ResStrandNum != 0 && resCtr + 1 < strandlist[strandCtr].Residues.Count)
+                                {
+                                    Strand nextStrand = strandlist[strandlist[strandCtr].Residues[resCtr].nextStrandRes.StrandNum];
+                                    c5 = nextStrand.Residues[myRes.nextStrandRes.ResStrandNum - 1].BackboneCoords["CA"];
+                                    c6 = nextStrand.Residues[myRes.nextStrandRes.ResStrandNum].BackboneCoords["CA"];
+                                    double distance = (c6 - c3).Length;
+                                    strandlist[strandCtr].Residues[resCtr].Twist_next = CalculateTorsion(c4, c3, c6, c5);
+                                    file2.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}", strandlist[strandCtr].Residues[resCtr + 1].SeqID, strandlist[strandCtr].Residues[resCtr].SeqID, nextStrand.Residues[myRes.nextStrandRes.ResStrandNum].SeqID, nextStrand.Residues[myRes.nextStrandRes.ResStrandNum - 1].SeqID, strandlist[strandCtr].Residues[resCtr].Twist_next, distance, strandCtr, nextStrand.StrandNum);
+
+                                    all_next_twist.Add(strandlist[strandCtr].Residues[resCtr].Twist_next);
+                                    //_aaDict[strandlist[strandCtr].Residues[resCtr].ThreeLetCode].Twist.Add(strandlist[strandCtr].Residues[resCtr].Dihedral);
+                                }
+                            }
+                            //_aaDict[strandlist[strandCtr].Residues[resCtr].ThreeLetCode].Twist.Add(-170.0); //if I can't get a dihedral let me know
+
+                        }
+                    }
+                }
+            }
+            return (all_prev_twist);
         }
 
         public static double getTiltsByAA(List<Strand> strandlist, string outputDirectory, string PdbName, Vector3D axis, ref Dictionary<string, AminoAcid> _AADict)

@@ -23,7 +23,7 @@ namespace betaBarrelProgram
         public class PolyProtein : Protein
         {
 
-            public List<Chain> Chains { get; set; } = new List<Chain>();
+            public List<Chain> Chains = new List<Chain>();
             public int ChainCount { get; set; }
             public int totalResNum { get; set; }
             public string PdbName { get; set; }
@@ -46,7 +46,7 @@ namespace betaBarrelProgram
                     if (IsItProtein == true)
                     {
                         //Console.WriteLine("Creating new chain");
-                        Chain myChain = new Chain(ref _myAtomCat, chainNum, PdbName, false);
+                        Chain myChain = new Chain(ref _myAtomCat, chainNum, PdbName, false, Global.DB_DIR);
                         this.Chains.Add(myChain);
                         this.ChainCount++;
                     }
@@ -63,7 +63,7 @@ namespace betaBarrelProgram
             public PolyProtein(ref AtomParser.AtomCategory _myAtomCat, int chainNum, string PdbName)
             {
 
-                Chain myChain = new Chain(ref _myAtomCat, chainNum, PdbName, false);
+                Chain myChain = new Chain(ref _myAtomCat, chainNum, PdbName, false, Global.DB_DIR);
                 this.Chains.Add(myChain);
             }
 
@@ -98,8 +98,10 @@ namespace betaBarrelProgram
             public Vector3D AxisVector { get; set; }
             public Vector3D NewCaxisPt { get; set; }
             public Vector3D OldCaxisPt { get; set; }
+            public int ShearNum { get; set; }
+            public List<double> PrevTwists { get; set; }
 
-	        public PBarrel(PolyProtein _myProtein, string outputDirectory, string databaseDirectory) // send a protein class instead of chains
+	        public PolyBarrel(PolyProtein _myProtein, string outputDirectory, string databaseDirectory) // send a protein class instead of chains
 	        {
 	            this.protoBarrel = new List<List<List<int>>>();
 	            this.Strands = new List<Strand>();
@@ -232,21 +234,21 @@ namespace betaBarrelProgram
 	                    Dictionary<string, string> Loops = SharedFunctions.getLoopTurns(this.Strands, ref this_chain, outputDirectory, this.PdbName);
 	                    //SharedFunctions.writePymolScriptForLoops(Loops, outputDirectory, Program.MacpolyDBDir, ref this_chain, this.PdbName);
 	                    //SharedFunctions.findLoopsHBondingPartnersGeomOnly(Loops, outputDirectory, ref this_chain, this.PdbName, true);
-	                    //this.PrevTwists = SharedFunctions.getTwist(this.Strands, outputDirectory, this.PdbName);
+	                    //this.PrevTwists = SharedFunctions.writeTwists(this.Strands, outputDirectory, this.PdbName);
 	                }
 	                else if ((this_chain.ChainName == "A" | this_chain.ChainName == "B") & this.PdbName.ToUpper() == "3B07")
 	                {
 	                    Dictionary<string, string> Loops = SharedFunctions.getLoopTurns(this.Strands, ref this_chain, outputDirectory, this.PdbName);
 	                    //SharedFunctions.writePymolScriptForLoops(Loops, outputDirectory, Program.MacpolyDBDir, ref this_chain, this.PdbName);
 	                    //SharedFunctions.findLoopsHBondingPartnersGeomOnly(Loops, outputDirectory, ref this_chain, this.PdbName, true);
-	                    //this.PrevTwists = SharedFunctions.getTwist(this.Strands, outputDirectory, this.PdbName);
+                        //this.PrevTwists = SharedFunctions.writeTwists(this.Strands, outputDirectory, this.PdbName);
 	                }
 	                else if (this_chain.ChainName == "A")
 	                {
 	                    Dictionary<string, string> Loops = SharedFunctions.getLoopTurns(this.Strands, ref this_chain, outputDirectory, this.PdbName);
 	                    //SharedFunctions.writePymolScriptForLoops(Loops, outputDirectory, Program.MacpolyDBDir, ref this_chain, this.PdbName);
 	                    //SharedFunctions.findLoopsHBondingPartnersGeomOnly(Loops, outputDirectory, ref this_chain, this.PdbName, true);
-	                    //this.PrevTwists = SharedFunctions.getTwist(this.Strands, outputDirectory, this.PdbName);
+                        //this.PrevTwists = SharedFunctions.writeTwists(this.Strands, outputDirectory, this.PdbName);
 	                }
 
 	            }

@@ -13,6 +13,7 @@ using System;
 using System.Windows.Media.Media3D;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 namespace betaBarrelProgram
 {
@@ -21,14 +22,14 @@ namespace betaBarrelProgram
     {
         
         public interface Protein
-    {
-        List<BarrelStructures.Chain> Chains { get; set; }
-        int ChainCount { get; set; }
-        int totalResNum { get; set; }
-        string PdbName { get; set; }
-    }
+        {
+            List<BarrelStructures.Chain> Chains { get; set; }
+            int ChainCount { get; set; }
+            int totalResNum { get; set; }
+            string PdbName { get; set; }
+        }
 
-    public interface Barrel : IEnumerable<Strand>
+        public interface Barrel : IEnumerable<Strand>
         {
         string PdbName { get; set; }
         List<BarrelStructures.Strand> Strands { get; set; }
@@ -49,9 +50,10 @@ namespace betaBarrelProgram
         Vector3D AxisVector { get; set; }
         Vector3D NewCaxisPt { get; set; }
         Vector3D OldCaxisPt { get; set; }
-    }
+        int ShearNum { get; set; }
+        List<double> PrevTwists { get; set; }
 
-    
+    }
 
         public class Chain : IEnumerable<Res>
         {
