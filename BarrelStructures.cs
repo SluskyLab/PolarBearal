@@ -18,12 +18,12 @@ using System.IO;
 namespace betaBarrelProgram
 {
 
-    namespace BarrelStructures
+    namespace BarrelStructures //this is where it derails!
     {
         
         public interface Protein
         {
-            List<BarrelStructures.Chain> Chains { get; set; }
+            List<Chain> Chains { get; set; }
             int ChainCount { get; set; }
             int totalResNum { get; set; }
             string PdbName { get; set; }

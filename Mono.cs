@@ -23,8 +23,8 @@ namespace betaBarrelProgram
     {
         public class MonoProtein : Protein
         {
-
-            public List<Chain> Chains = new List<Chain>();
+            public List<Chain> Chains { get; set; }
+            /* public List<Chain> Chains = new List<BarrelStructures.Chain>(); */
             public int ChainCount { get; set; }
             public int totalResNum { get; set; }
             public string PdbName { get; set; }
@@ -32,10 +32,11 @@ namespace betaBarrelProgram
 
             public MonoProtein(ref AtomParser.AtomCategory _myAtomCat, string PdbName)
             {
-                this.Chains = new List<Chain>();
+                /*this.Chains = new List<BarrelStructures.Chain>();*/
                 this.ChainCount = 0;
                 this.totalResNum = 0;
                 this.PdbName = PdbName;
+                this.Chains = new List<BarrelStructures.Chain>();
 
                 for (int chainNum = 0; chainNum < _myAtomCat.chainAtomsList.Count; chainNum++)
                 {
@@ -46,7 +47,7 @@ namespace betaBarrelProgram
                     }
                     if (IsItProtein == true)
                     {
-                        Chain myChain = new Chain(ref _myAtomCat, chainNum, PdbName, true, Global.DB_DIR);
+                        Chain myChain = new Chain(ref _myAtomCat, chainNum, PdbName, true, Global.MONO_DB_DIR);
                         this.Chains.Add(myChain);
                         this.ChainCount++;
                     }
@@ -55,11 +56,9 @@ namespace betaBarrelProgram
 
             public MonoProtein(ref AtomParser.AtomCategory _myAtomCat, int chainNum, string PdbName)
             {
-                this.Chains = new List<Chain>();
-                Chain myChain = new Chain(ref _myAtomCat, chainNum, PdbName, true, Global.DB_DIR);
+                this.Chains = new List<BarrelStructures.Chain>();
+                BarrelStructures.Chain myChain = new BarrelStructures.Chain(ref _myAtomCat, chainNum, PdbName, true, Global.MONO_DB_DIR);
                 this.Chains.Add(myChain);
-
-
             }
 
             public void translate(Vector3D translationCoords)
@@ -2079,7 +2078,9 @@ namespace betaBarrelProgram
             }
         }
 		
-	    public class SBarrel : Barrel
+        
+        /* */
+	    public class SBarrel
 	    {
 	        public List<Strand> Strands { get; set; }
 	        public List<double> PrevTwists { get; set; }
@@ -2114,6 +2115,7 @@ namespace betaBarrelProgram
 	                            }
 	                        }
 	                }*/
+        
 
 	            createStrandsDSSPonly(ref _myChain);
 	            for (int strandCtr = 0; strandCtr < protoBarrel.Count; strandCtr++)
@@ -2205,6 +2207,7 @@ namespace betaBarrelProgram
 	                //protoBarrel[8].AddRange(Enumerable.Range(protoBarrel[9][0], protoBarrel[9].Count));
 	                //protoBarrel.RemoveAt(9);
 	            }*/
+        
 	            #endregion
 	        }
 
@@ -2491,7 +2494,7 @@ namespace betaBarrelProgram
 	        }
 
 	    }
-
+        
     }
 
  }

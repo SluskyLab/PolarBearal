@@ -160,7 +160,7 @@ namespace betaBarrelProgram
             _protein = null;
             _barrel = null;
 
-            SharedFunctions.runBetaBarrel(PDBid, ref _protein, ref _barrel);
+            SharedFunctions.runBetaBarrel_RYAN(PDBid, ref _protein, ref _barrel);
             strandlist = _barrel.Strands;
 
             BottomEllipse = new Ellipse(SharedFunctions.getBottomEllipseCoords(strandlist));

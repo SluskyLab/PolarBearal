@@ -23,7 +23,8 @@ namespace betaBarrelProgram
         public class PolyProtein : Protein
         {
 
-            public List<Chain> Chains = new List<Chain>();
+
+            public List<Chain> Chains { get; set; }
             public int ChainCount { get; set; }
             public int totalResNum { get; set; }
             public string PdbName { get; set; }
@@ -34,6 +35,8 @@ namespace betaBarrelProgram
                 this.ChainCount = 0;
                 this.totalResNum = 0;
                 this.PdbName = PdbName.Substring(0, 4).ToUpper();
+                this.Chains = new List<BarrelStructures.Chain>();
+
                 //Console.WriteLine("In protein Class");
                 for (int chainNum = 0; chainNum < _myAtomCat.chainAtomsList.Count; chainNum++)
                 {
@@ -46,7 +49,7 @@ namespace betaBarrelProgram
                     if (IsItProtein == true)
                     {
                         //Console.WriteLine("Creating new chain");
-                        Chain myChain = new Chain(ref _myAtomCat, chainNum, PdbName, false, Global.DB_DIR);
+                        Chain myChain = new Chain(ref _myAtomCat, chainNum, PdbName, false, Global.POLY_DB_DIR);
                         this.Chains.Add(myChain);
                         this.ChainCount++;
                     }
@@ -62,8 +65,8 @@ namespace betaBarrelProgram
 
             public PolyProtein(ref AtomParser.AtomCategory _myAtomCat, int chainNum, string PdbName)
             {
-
-                Chain myChain = new Chain(ref _myAtomCat, chainNum, PdbName, false, Global.DB_DIR);
+                this.Chains = new List<BarrelStructures.Chain>();
+                Chain myChain = new Chain(ref _myAtomCat, chainNum, PdbName, false, Global.POLY_DB_DIR);
                 this.Chains.Add(myChain);
             }
 

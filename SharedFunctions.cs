@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using betaBarrelProgram.BarrelStructures;
 using betaBarrelProgram.Mono;
+using betaBarrelProgram.Poly;
 using System.IO;
 using System.Windows.Media.Media3D;
 
@@ -1859,6 +1860,80 @@ namespace betaBarrelProgram
                 }
             }
         }
+
+        public static void runBetaBarrel_RYAN(string pdb, ref Protein m_Protein, ref Barrel m_Barrel)
+        {
+            try
+            {
+                Directory.SetCurrentDirectory(Global.MONO_DB_DIR);
+                string PDB = pdb.Substring(0, 4).ToUpper();
+                string pdbFileName = PDB + ".pdb";
+
+                if (File.Exists(pdbFileName))
+                {
+                    AtomParser.AtomCategory myAtomCat = new AtomParser.AtomCategory();
+                    ////Console.WriteLine("opened {0}", pdbFileName);
+                    myAtomCat = Program.readPdbFile(pdbFileName, ref Global.partialChargesDict);
+                    int chainNum = 0;
+
+                    int stop = myAtomCat.ChainAtomList.Count();
+                    ////Console.Write("Protein Class {0}", chainNum);
+
+                    m_Protein = new MonoProtein(ref myAtomCat, chainNum, PDB);
+
+                    ////Console.Write("creating barrel class..");
+
+                    m_Barrel = new MonoBarrel(m_Protein.Chains[0], m_Protein);
+                }
+                else
+                {
+                    Directory.SetCurrentDirectory(Global.POLY_DB_DIR);
+
+                    pdbFileName = pdb.Substring(0, 4).ToUpper() + ".pdb";
+                    if (File.Exists(pdbFileName))
+                    {
+                        AtomParser.AtomCategory myAtomCat = new AtomParser.AtomCategory();
+                        //Console.WriteLine("opened {0}", pdbFileName);
+                        myAtomCat = Program.readPdbFile(pdbFileName, ref Global.partialChargesDict);
+
+                        PolyProtein newProt = new PolyProtein(ref myAtomCat, pdb); //For considering all chains
+
+                        //Console.WriteLine("creating barrel class..");
+                        m_Protein = newProt;
+                        m_Barrel = new PolyBarrel(newProt, Global.POLY_OUTPUT_DIR, Global.POLY_DB_DIR);
+                    }
+                    else
+                    {
+                        pdbFileName = pdb.Substring(0, 4).ToLower() + ".pdb";
+                        if (File.Exists(pdbFileName))
+                        {
+                            AtomParser.AtomCategory myAtomCat = new AtomParser.AtomCategory();
+                            //Console.WriteLine("opened {0}", pdbFileName);
+                            myAtomCat = Program.readPdbFile(pdbFileName, ref Global.partialChargesDict);
+
+                            //Console.WriteLine("opened {0}", pdbFileName);
+                            myAtomCat = Program.readPdbFile(pdbFileName, ref Global.partialChargesDict);
+
+                            PolyProtein newProt = new PolyProtein(ref myAtomCat, pdb); //For considering all chains
+
+                            //Console.WriteLine("creating barrel class..");
+                            m_Protein = newProt;
+                            m_Barrel = new PolyBarrel(newProt, Global.POLY_OUTPUT_DIR, Global.POLY_DB_DIR);
+                        }
+                        else
+                        {
+
+                            //Console.WriteLine("could not find {0}", pdbFileName);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                Console.WriteLine("could not run: " + pdb);
+            }
+        }
+
 
         #region JoannasFunctions
         //-----------------------------------Joanna's functions----------------------------

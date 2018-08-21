@@ -36,12 +36,12 @@ namespace betaBarrelProgram
             //get 16 strand beta barrel
             first_protein = null;
             first_barrel = null;
-            SharedFunctions.runBetaBarrel("4rjw", ref first_protein, ref first_barrel);
+            SharedFunctions.runBetaBarrel_RYAN("4rjw", ref first_protein, ref first_barrel);
 
             //get 18 strand beta barrel
             last_protein = null;
             last_barrel = null;
-            SharedFunctions.runBetaBarrel("5dl6", ref last_protein, ref last_barrel);
+            SharedFunctions.runBetaBarrel_RYAN("5dl6", ref last_protein, ref last_barrel);
 
             Align();
 

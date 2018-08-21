@@ -13,39 +13,40 @@ namespace betaBarrelProgram
 {
     public static class Global
     {
-        /*public static string parameterFile = @"Z:\Documents\PhD\SluskyLab\PolarBearal\par_hbond_1.txt"; //This parameter file holds donor/acceptors in every amino acid
+        public static string parameterFile = @"Z:\Documents\PhD\SluskyLab\PolarBearal\par_hbond_1.txt"; //This parameter file holds donor/acceptors in every amino acid
 
-        public static string polyDBDirectory = @"Z:\Documents\PhD\SluskyLab\PolyBarrelsDB\";
-        public static string MacpolyDBDir = "/Users/meghan/Documents/PhD/SluskyLab/PolyBarrelsDB/";
+        public static string DSSP_DIR = @"Z:\Documents\PhD\SluskyLab\DSSPFiles\";
+        public static string POLY_DB_DIR = @"Z:\Documents\PhD\SluskyLab\PolyBarrelsDB\";
+        public static string MACPOLYDBDIR = "/Users/meghan/Documents/PhD/SluskyLab/PolyBarrelsDB/";
         //public static string polyDBDirectory = @"Z:\Documents\PhD\SluskyLab\RenumbFrom1PDBs\";
         //public static string MacpolyDBDir = "/Users/meghan/Documents/PhD/SluskyLab/RenumbFrom1PDBs/";
         //public static string polyoutDirectory = @"Z:\Documents\PhD\SluskyLab\Output\PolyBarrels\";
         //public static string MacpolyDBDir = @"Z:\Dropbox (Slusky Lab)\MFranklin\StrucAlignTempCopy\v4_July\";
         //public static string polyDBDirectory = "/Volumes/G_Drive/StructureAlign/NirBenTal/Joanna_and_Meghan/v4_July/pdb_files/";
         //public static string polyoutDirectory = @"Z:\Dropbox (Slusky Lab)\MFranklin\StrucAlignTempCopy\v4_July\";
-        public static string polyoutDirectory = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\";
+        public static string POLY_OUTPUT_DIR = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\";
         //public static string polyoutDirectory = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\RosettaLoops\";
 
-        public static string monoDBDirectory = @"Z:\Documents\PhD\SluskyLab\MonoDB\";
-        public static string MacmonoDBDir = "/Users/meghan/Documents/PhD/SluskyLab/MonoDB/";
-        public static string monooutDirectory = @"Z:\Documents\PhD\SluskyLab\Output\monomers_v5\";
+        public static string MONO_DB_DIR = @"Z:\Documents\PhD\SluskyLab\MonoDB\";
+        public static string MACMONODBDIR = "/Users/meghan/Documents/PhD/SluskyLab/MonoDB/";
+        public static string MONO_OUTPUT_DIR = @"Z:\Documents\PhD\SluskyLab\Output\monomers_v5\";
         //Remember to change lines to seqID for rel num or to ResNum to abs num in getLoopSeq function
-        //public static string monooutDirectory = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\";
-        //public static string monooutDirectory = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\RosettaLoops\";
+        //public static string MONO_OUTPUT_DIR = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\";
+        //public static string MONO_OUTPUT_DIR = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\RosettaLoops\";
 
-        //public static string monoDBDirectory = @"Z:\Documents\PhD\v6_2018\OMBBNetwork\PDBFiles/";
-        //public static string MacmonoDBDir = "/Users/meghan/Documents/PhD/v6_2018/OMBBNetwork/PDBFiles/";
-        //public static string monooutDirectory = @"Z:\Documents\PhD\v6_2018\OMBBNetwork\";
+        //public static string MONO_DB_DIR = @"Z:\Documents\PhD\v6_2018\OMBBNetwork\PDBFiles/";
+        //public static string MACMONODBDIR = "/Users/meghan/Documents/PhD/v6_2018/OMBBNetwork/PDBFiles/";
+        //public static string MONO_OUTPUT_DIR = @"Z:\Documents\PhD\v6_2018\OMBBNetwork\";
 
-        //public static string monoDBDirectory = @"Z:\Documents\PhD\SluskyLab\8-12Scaffolds\ForPBearal";
-        //public static string MacmonoDBDir = "/Users/meghan/Documents/PhD/SluskyLab/8-12Scaffolds/ForPBearal";
-        //public static string monooutDirectory = @"Z:\Documents\PhD\SluskyLab\8-12Scaffolds\PBearalData\";
+        //public static string MONO_DB_DIR = @"Z:\Documents\PhD\SluskyLab\8-12Scaffolds\ForPBearal";
+        //public static string MACMONODBDIR = "/Users/meghan/Documents/PhD/SluskyLab/8-12Scaffolds/ForPBearal";
+        //public static string MONO_OUTPUT_DIR = @"Z:\Documents\PhD\SluskyLab\8-12Scaffolds\PBearalData\";
 
-        public static string solDBDirectory = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\LoopTwists\SolubleTwists\ThorntonDBMod\";
-        public static string MacsolDBDir = "/Users/meghan/Documents/PhD/SluskyLab/BarrelChars/LoopTurns/LoopTwists/SolubleTwists/ThorntonDBMod/";
-        public static string soloutDirectory = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\LoopTwists\SolubleTwists\";*/
+        public static string SOL_DB_DIR = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\LoopTwists\SolubleTwists\ThorntonDBMod\";
+        public static string MACSOLDBDIR = "/Users/meghan/Documents/PhD/SluskyLab/BarrelChars/LoopTurns/LoopTwists/SolubleTwists/ThorntonDBMod/";
+        public static string SOL_OUTPUT_DIR = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\LoopTwists\SolubleTwists\";
 
-        public static string DB_DIR = "U:/v5/pdb_files/"; //this also needs to have DSSP files in it as well
+        /*public static string DB_DIR = "U:/v5/pdb_files/"; //this also needs to have DSSP files in it as well
         public static string OUTPUT_DIR = "U:/v4/Pymol/";
 
         public static string POLY_DB_DIR = @"\\psf\Home\Desktop\SluskyLab\betaBarrelProgram\betaBarrelOutput\PolyBarrelsDB\";
@@ -60,7 +61,8 @@ namespace betaBarrelProgram
         public static string MACSOLDBDIR = @"\\psf\Home\Desktop\SluskyLab\betaBarrelProgram\betaBarrelOutput\MonoBarrelsDB\MonoDBList_v4_85.txt";
         public static string SOL_OUTPUT_DIR = @"\\psf\Home\Desktop\SluskyLab\betaBarrelProgram\betaBarrelOutput\MonoBarrels\";
 
-        public static string parameterFile = @"\\psf\Home\Desktop\SluskyLab\betaBarrelProgram\par_hbond_1.txt"; //This parameter file holds donor/acceptors in every amino acid
+        public static string parameterFile = @"\\psf\Home\Desktop\SluskyLab\betaBarrelProgram\par_hbond_1.txt"; //This parameter file holds donor/acceptors in every amino acid */
+
         public static Dictionary<string, AminoAcid> AADict = betaBarrelProgram.SharedFunctions.makeAADict();
         //The values in this dictionary are transcribed from CHARMM36 all-hydrogen topology file for proteins, May 2011
         public static Dictionary<Tuple<string, string>, double> partialChargesDict = new Dictionary<Tuple<string, string>, double>
@@ -132,6 +134,7 @@ namespace betaBarrelProgram
             Console.WriteLine("2. Run Single Protein");
             Console.WriteLine("3. Run Soluble Database");
             Console.WriteLine("4. Run PolyBarrel");
+            Console.WriteLine("5. Run Single Protein Ellipse");
         }
 
         static void Main(string[] args)
@@ -156,7 +159,9 @@ namespace betaBarrelProgram
                     case "4":
                         startPolyBarrel();
                         break;
-                    
+                    case "5":
+                        BarrelEllipse.testEllipseSinglePDB();
+                        break;
                 }
             }
 
