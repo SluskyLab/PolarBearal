@@ -35,13 +35,10 @@
     <Reference Include="MathNet.Numerics">
       <HintPath>Z:\Documents\PhD\GitProjects\PolarBearal\MathNet.Numerics.3.19.0\lib\net35\MathNet.Numerics.dll</HintPath>
     </Reference>
-    <Reference Include="Meta.Numerics, Version=3.0.0.0, Culture=neutral, PublicKeyToken=67d25c65a6631347, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\Meta.Numerics.dll</HintPath>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -68,8 +65,20 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages\MathNet.Numerics.4.5.1\MathNet.Numerics.4.5.1.nupkg" />
+    <None Include="packages\MathNet.Numerics.4.5.1\MathNet.Numerics.4.5.1.nuspec">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="packages\MathNet.Numerics.4.5.1\lib\net40\MathNet.Numerics.dll" />
+    <Content Include="packages\MathNet.Numerics.4.5.1\lib\net40\MathNet.Numerics.xml" />
+    <Content Include="packages\MathNet.Numerics.4.5.1\lib\net461\MathNet.Numerics.dll" />
+    <Content Include="packages\MathNet.Numerics.4.5.1\lib\net461\MathNet.Numerics.xml" />
+    <Content Include="packages\MathNet.Numerics.4.5.1\lib\netstandard1.3\MathNet.Numerics.dll" />
+    <Content Include="packages\MathNet.Numerics.4.5.1\lib\netstandard1.3\MathNet.Numerics.xml" />
+    <Content Include="packages\MathNet.Numerics.4.5.1\lib\netstandard2.0\MathNet.Numerics.dll" />
+    <Content Include="packages\MathNet.Numerics.4.5.1\lib\netstandard2.0\MathNet.Numerics.xml" />
     <Content Include="par_hbond_1.txt" />
   </ItemGroup>
   <ItemGroup>

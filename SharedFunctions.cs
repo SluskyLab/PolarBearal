@@ -11,6 +11,7 @@
 
 
 using System;
+using System.Numerics;
 using System.Collections.Generic;
 using System.Linq;
 using betaBarrelProgram.BarrelStructures;
@@ -231,7 +232,9 @@ namespace betaBarrelProgram
 
             for (int vecCtr = 0; vecCtr < A.RowCount; vecCtr++)
             {
-                double lambda = eigen.EigenValues.At(vecCtr).Real;
+                //double lambda = eigen.EigenValues.At(vecCtr).Real;
+                var tmplambda = eigen.EigenValues.At(vecCtr);
+                double lambda = tmplambda.Real;
 
                 Vector3D vec3D = new Vector3D(eigen.EigenVectors.At(vecCtr, 0), eigen.EigenVectors.At(vecCtr, 1), eigen.EigenVectors.At(vecCtr, 2));
 
