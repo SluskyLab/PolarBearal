@@ -305,8 +305,8 @@ namespace betaBarrelProgram
 	            //find shear number July 22, 2014
 	            //int ShearNum = shearNum(ref _myChain);
 
-	            //SharedFunctions.findNearestNeighbors(this.Strands, path, this.PdbName); //based on CA distances; this is needed for shear number determination now.
-	            //getShearNum();
+	            SharedFunctions.findNearestNeighbors(this.Strands, path, this.PdbName); //based on CA distances; this is needed for shear number determination now.
+	            getShearNum();
             
 	            //SharedFunctions.findHBondingPartnersEnergy(this.Strands, path, this.PdbName); //SQRWL-like implementation of hydrogen bonding
 	            //SharedFunctions.findNearNeighDistOnly(this.Strands, path, this.PdbName);
