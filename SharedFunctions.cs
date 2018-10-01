@@ -110,7 +110,7 @@ namespace betaBarrelProgram
         public static void writePymolScriptForStrands(List<Strand> strandlist, string outputDirectory, string DBdirectory, string pdbName)
         {
             List<string> chain_names = new List<string>();
-            string fileLocation = outputDirectory + "strands_" + pdbName + ".py";
+            string fileLocation = outputDirectory + "Pymol/strands_" + pdbName + ".py";
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileLocation))
             {
                 //If you do NOT use MacPymol, uncomment several lines below
@@ -120,6 +120,7 @@ namespace betaBarrelProgram
                 file.WriteLine("from pymol import cmd, stored"); //For MacPyMOL
                 string[] colors = { "white", "red", "orange", "purple", "yellow", "green", "cyan", "blue", "purple", "red", "orange", "yellow", "green", "cyan", "blue", "purple", "red", "orange", "yellow", "green", "cyan", "blue", "purple", "red", "orange", "yellow", "green", "cyan", "blue", "purple", "red", "orange", "yellow", "green", "cyan", "blue", "purple", "red", "orange", "yellow", "green", "cyan", "blue", "purple", "red", "orange", "yellow", "green", "cyan", "blue", "purple", "red", "orange", "yellow", "green", "cyan", "blue", "purple", "red", "orange", "yellow", "green", "cyan", "blue", "purple" };
                 string pdb_file = DBdirectory + pdbName + ".pdb";
+                file.WriteLine("cmd.load(\"{0}\")", pdb_file);
                 file.WriteLine("cmd.hide(\"everything\", \"all\")");
                 file.WriteLine("cmd.color(\"wheat\",\"all\")");
 
@@ -260,10 +261,13 @@ namespace betaBarrelProgram
 
         }
 
-        public static double setRadius(List<Strand> strandlist, Vector3D axis, Vector3D CCentroid, Vector3D NCentroid)
+        public static Tuple<double, double, double> setRadius(List<Strand> strandlist, Vector3D axis, Vector3D CCentroid, Vector3D NCentroid)
         {
+            //Modified 10-31-18 MWF to save the min/max radii
             double AvgRad = 0;
             double totalRes = 0;
+            double minRad = 50;
+            double maxRad = 0;
             foreach (Strand strand in strandlist)
             {
                 foreach (Res myRes in strand)
@@ -271,58 +275,15 @@ namespace betaBarrelProgram
                     myRes.Radius = (Vector3D.CrossProduct(myRes.BackboneCoords["CA"] - NCentroid, myRes.BackboneCoords["CA"] - CCentroid)).Length / axis.Length;
                     AvgRad += myRes.Radius;
                     totalRes++;
+                    if (myRes.Radius < minRad) minRad = myRes.Radius;
+                    if (myRes.Radius > maxRad) maxRad = myRes.Radius;
                 }
             }
-            return AvgRad / totalRes;
+            var tuple = new Tuple<double, double, double>(AvgRad /totalRes, minRad, maxRad);
+            return tuple;
         }
 
         public static void setInOut(List<Strand> strandlist, string outputDirectory, string pdbName, Vector3D axis, Vector3D CCentroid, Vector3D NCentroid)
-        {
-            double direction; double angleUncertainty; double angle;
-                foreach (Strand strand in strandlist)
-                {
-                    direction = Vector3D.AngleBetween(strand.Residues[0].BackboneCoords["CA"] - strand.Residues[strand.Residues.Count - 1].BackboneCoords["CA"], axis);
-
-                    foreach (Res myRes in strand)
-                    {
-                        angleUncertainty = 10;
-                        angle = Vector3D.AngleBetween(myRes.BackboneCoords["CA"] - ((myRes.BackboneCoords["N"] + myRes.BackboneCoords["C"]) / 2), axis);
-
-                        if ((angle < 90 + angleUncertainty && angle > 90 - angleUncertainty || myRes.ResNum == 0 || myRes.ResNum == strand.Residues.Count - 1) && myRes.ThreeLetCode != "GLY")
-                        {
-                            //This combines the double-check in/out function
-                            bool inward = false;
-                            Vector3D myCentroid = new Vector3D();
-                            if ((myRes.BackboneCoords["CA"] - NCentroid).Length < (myRes.BackboneCoords["CA"] - CCentroid).Length) myCentroid = NCentroid;
-                            else myCentroid = CCentroid;
-
-                            if ((myRes.BackboneCoords["CA"] - myCentroid).Length > (myRes.Atoms[4].Coords - myCentroid).Length) inward = true;
-
-                            if (inward == true)
-                            {
-                                myRes.Inward = true;
-                            }
-                            else myRes.Inward = false;
-                        }
-                        else
-                        {
-                            if (direction > 90)
-                            {
-                                if (angle > 90) myRes.Inward = true;
-                                else myRes.Inward = false;
-                            }
-                            else
-                            {
-                                if (angle < 90) myRes.Inward = true;
-                                else myRes.Inward = false;
-
-                            }
-                        }
-                }
-            }
-        }
-
-        public static void getInOut(List<Strand> strandlist, string outputDirectory, string pdbName, Vector3D axis, Vector3D CCentroid, Vector3D NCentroid)
         {
             string fileLocation3 = outputDirectory + "InOut\\InOut_" + pdbName + ".txt";
             double direction; double angleUncertainty; double angle;

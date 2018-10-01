@@ -43,6 +43,8 @@ namespace betaBarrelProgram
         double AvgTilt_even { get; set; }
         double AvgTilt_odd { get; set; }
         double AvgRadius { get; set; }
+        double MaxRadius { get; set; }
+        double MinRadius { get; set; }
         List<Res> LoopResies { get; set; }
         List<double> StrandLength { get; set; }
         Vector3D OriginalNcentroid { get; set; }
@@ -147,8 +149,8 @@ namespace betaBarrelProgram
                         }
                         for (int atomCtr = 0; atomCtr < Residues[residueCtr].Atoms.Count; atomCtr++)
                         {
-                            if (Residues[residueCtr].Atoms[atomCtr].AtomName == "N" && Residues[residueCtr].ThreeLetCode != "PRO")
-                            {// get H coords for NH 
+                            if (Residues[residueCtr].Atoms[atomCtr].AtomName == "N" && Residues[residueCtr].ThreeLetCode != "PRO" && Residues[residueCtr - 1].BackboneCoords.Count == 4)
+                            {// get H coords for NH - exact opposite direction as the previous res' C-O vector
                                 Vector3D COvec = new Vector3D();
                                 COvec = Residues[residueCtr - 1].BackboneCoords["C"] - Residues[residueCtr - 1].BackboneCoords["O"];
                                 COvec.Normalize();
@@ -158,12 +160,19 @@ namespace betaBarrelProgram
                             }
 
                             //get e2 vector for carbonyl
-                            Vector3D e2 = new Vector3D();
-                            e2 = Residues[residueCtr - 1].BackboneCoords["C"] - Residues[residueCtr].BackboneCoords["N"];
-                            e2.Normalize();
-                            for (int atomCtr2 = 0; atomCtr2 < Residues[residueCtr - 1].Atoms.Count; atomCtr2++)
+                            try
                             {
-                                if (Residues[residueCtr - 1].Atoms[atomCtr2].AtomName == "O") Residues[residueCtr - 1].Atoms[atomCtr2].e2 = e2;
+                                Vector3D e2 = new Vector3D();
+                                e2 = Residues[residueCtr - 1].BackboneCoords["C"] - Residues[residueCtr].BackboneCoords["N"];
+                                e2.Normalize();
+                                for (int atomCtr2 = 0; atomCtr2 < Residues[residueCtr - 1].Atoms.Count; atomCtr2++)
+                                {
+                                    if (Residues[residueCtr - 1].Atoms[atomCtr2].AtomName == "O") Residues[residueCtr - 1].Atoms[atomCtr2].e2 = e2;
+                                }
+                            }
+                            catch (KeyNotFoundException)
+                            {
+                                continue;
                             }
 
 

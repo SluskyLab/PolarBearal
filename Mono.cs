@@ -85,6 +85,8 @@ namespace betaBarrelProgram
             public double AvgTilt_odd { get; set; }
             public List<List<int>> protoBarrel { get; set; }
             public double AvgRadius { get; set; }
+            public double MinRadius { get; set; }
+            public double MaxRadius { get; set; }
             public List<Res> LoopResies { get; set; }
             public string PdbName { get; set; }
             public string ChainName { get; set; }
@@ -197,7 +199,10 @@ namespace betaBarrelProgram
                 #endregion
 
                 #region Rotate barrel to z-axis
-                this.AvgRadius = SharedFunctions.setRadius(this.Strands, this.Axis, this.Ccentroid, this.Ncentroid);
+                var radii = SharedFunctions.setRadius(this.Strands, this.Axis, this.Ccentroid, this.Ncentroid);
+                this.AvgRadius = radii.Item1;
+                this.MaxRadius = radii.Item3;
+                this.MinRadius = radii.Item2;
                 setCEllipseCoords(ref _myChain);
                 setNEllipseCoords(ref _myChain);
 
@@ -241,8 +246,8 @@ namespace betaBarrelProgram
                 SharedFunctions.setInOut(this.Strands, path, this.PdbName, this.Axis, this.Ccentroid, this.Ncentroid);
 
                 /* ---------output information--------- */
-	            this.StrandLength = SharedFunctions.getStrandLengths(this.Strands, path, this.PdbName);
-                this.PrevTwists = SharedFunctions.writeTwists(this.Strands, Global.MONO_OUTPUT_DIR, this.PdbName);
+	            //this.StrandLength = SharedFunctions.getStrandLengths(this.Strands, path, this.PdbName);
+                //this.PrevTwists = SharedFunctions.writeTwists(this.Strands, Global.MONO_OUTPUT_DIR, this.PdbName);
 
 	            /*string fileLocation6 = path + "\\ZCoords\\XYZCoords_" + this.PdbName + ".txt";
 	            using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileLocation6))
@@ -258,7 +263,7 @@ namespace betaBarrelProgram
 	                }
 	            }*/
 
-	            string fileLocation15 = path + "\\ZCoords\\AllZCoords_" + this.PdbName + ".txt";
+	            /*string fileLocation15 = path + "\\ZCoords\\AllZCoords_" + this.PdbName + ".txt";
 	            using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileLocation15))
 	            {
 	                string newLine = "Res" + "\t" + "Num" + "\t" + "Strand" + "\t" + "Z-coord";
@@ -273,7 +278,7 @@ namespace betaBarrelProgram
 	                        }
 	                    }
 	                }
-	            }
+	            }*/
 
 	            //DSSP has to be used to define strands before the strands are created; although I could clear and recreate them if necessary...
 	            //Dictionary<string, string> Loops = SharedFunctions.getLoopTurns(this.Strands, ref _myChain, path, this.PdbName);
@@ -283,7 +288,7 @@ namespace betaBarrelProgram
                 SharedFunctions.writePymolScriptForStrands(this.Strands, Global.MONO_OUTPUT_DIR, Global.MACMONODBDIR, this.PdbName);
 	            //writeAminoAcidsTypesToFile(ref _myChain, path);
 
-	            SharedFunctions.setInOut(this.Strands, path, this.PdbName, this.Axis, this.Ccentroid, this.Ncentroid);
+	            //SharedFunctions.setInOut(this.Strands, path, this.PdbName, this.Axis, this.Ccentroid, this.Ncentroid);
 
 	            /*string fileLocation6 = path + "\\Renumb\\XYZCoords_" + this.PdbName + ".txt";
 	            using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileLocation6))
@@ -305,8 +310,8 @@ namespace betaBarrelProgram
 	            //find shear number July 22, 2014
 	            //int ShearNum = shearNum(ref _myChain);
 
-	            SharedFunctions.findNearestNeighbors(this.Strands, path, this.PdbName); //based on CA distances; this is needed for shear number determination now.
-	            getShearNum();
+	            //SharedFunctions.findNearestNeighbors(this.Strands, path, this.PdbName); //based on CA distances; this is needed for shear number determination now.
+	            //getShearNum();
             
 	            //SharedFunctions.findHBondingPartnersEnergy(this.Strands, path, this.PdbName); //SQRWL-like implementation of hydrogen bonding
 	            //SharedFunctions.findNearNeighDistOnly(this.Strands, path, this.PdbName);
@@ -330,7 +335,7 @@ namespace betaBarrelProgram
 	            //SharedFunctions.findHBondingPartnersGeomOnly(this.Strands, path, this.PdbName, false); //Modelling program-like implementation of hydrogen bonding
 	            //SharedFunctions.findAllNearNeighDistOnly(this.Strands, path, this.PdbName, ref _myChain);
 	            //this.Axis = this.Ccentroid - this.Ncentroid; //july3
-	            this.AvgTilt = SharedFunctions.getTiltsByAA(this.Strands, path, this.PdbName, this.Axis, ref Global.AADict);
+	            //this.AvgTilt = SharedFunctions.getTiltsByAA(this.Strands, path, this.PdbName, this.Axis, ref Global.AADict);
 
 	            //getTyrVector(path, ref _myChain);
             
@@ -477,7 +482,7 @@ namespace betaBarrelProgram
                 int usually0 = 0;
                 if (PdbName.ToUpper() == "3KVN") usually0 = 330;
                 if (PdbName.ToUpper() == "3RFZ") usually0 = 110;
-                if (PdbName.ToUpper() == "4EPA") usually0 = 120;
+                if (PdbName.ToUpper() == "4EPA" || PdbName.ToUpper() == "1FCP") usually0 = 120;
                 if (PdbName.ToUpper() == "4QKY") usually0 = 180;
                 if (PdbName.ToUpper() == "4K3B") usually0 = 400;
                 if (PdbName.ToUpper() == "4K3C") usually0 = 150;
@@ -497,7 +502,7 @@ namespace betaBarrelProgram
                             for (int res2ctr = usually0; res2ctr < usuallyEnd; res2ctr++)
                             {
 
-                                if (Math.Abs(res2ctr - res1ctr) > 3)
+                                if (Math.Abs(res2ctr - res1ctr) > 3 && (Residue1.SSType == "B" || _myChain.Residues[res2ctr].SSType == "B"))//moved check for SS from checking d 
                                 {
                                     Res Residue2 = _myChain.Residues[res2ctr];
                                     for (int atomCtr2 = 0; atomCtr2 < Residue2.Atoms.Count; atomCtr2++)
@@ -515,7 +520,7 @@ namespace betaBarrelProgram
 
                                             double minD = 2.75; //was 2.75 for 2013 bioinf paper;
 
-                                            if (d < minD && (Residue1.SSType == "B" || Residue2.SSType == "B"))
+                                            if (d < minD)
                                             {
                                                 //if (strandStart == false) firstRes = Residue1.SeqID;
                                                 if (Residue1.Neighbors.Contains(Residue2.ResNum) == false) Residue1.Neighbors.Add(Residue2.ResNum);
@@ -682,9 +687,9 @@ namespace betaBarrelProgram
                     protoBarrel.Add(myStrand3);
 
                 }
-                //for (int x = 0; x < this.protoBarrel.Count; x++) { Console.WriteLine(x + "\t" + _myChain.Residues[this.protoBarrel[x][0]].SeqID + "\t" + _myChain.Residues[this.protoBarrel[x].Last()].SeqID); }
+                for (int x = 0; x < this.protoBarrel.Count; x++) { Console.WriteLine(x + "\t" + _myChain.Residues[this.protoBarrel[x][0]].SeqID + "\t" + _myChain.Residues[this.protoBarrel[x].Last()].SeqID); }
 
-	            if (PdbName.ToUpper() == "3RBH" || PdbName.ToUpper() == "4AFK") //Added 4afk 6-22-17 as replacement in v4 for 3rbh
+                if (PdbName.ToUpper() == "3RBH" || PdbName.ToUpper() == "4AFK" || PdbName.ToUpper() == "4AZL" || PdbName.ToUpper() == "4XNK" || PdbName.ToUpper() == "4XNL") //Added 4afk 6-22-17 as replacement in v4 for 3rbh; 4azl/4xnk/4xnl are also alts
 	            {
 	                List<int> myStrand4 = new List<int>();
 	                List<int> myStrand5 = new List<int>();
@@ -734,13 +739,21 @@ namespace betaBarrelProgram
 	                myStrand1.AddRange(Enumerable.Range(protoBarrel[15][0], 17));
 	                protoBarrel.Insert(15, myStrand1);
 	                protoBarrel[16].RemoveRange(0, 20);
-	            }
+                }
+                if (PdbName.ToUpper() == "3DDR" || PdbName.ToUpper() == "5C58") //added 10-1-18 for v6_network comparison
+                {
+                    protoBarrel[17].RemoveRange(20, 16);
+                    myStrand1 = new List<int>();
+                    myStrand1.AddRange(Enumerable.Range(protoBarrel[18][0], 22));
+                    protoBarrel.Insert(18, myStrand1);
+                    protoBarrel[19].RemoveRange(0, 24);
+                }
 	            if (PdbName.ToUpper() == "5FP1") //added 6-22-17 for v4
 	            {
 	                protoBarrel[7].RemoveRange(14, 9);
 	                protoBarrel[8].RemoveRange(0, 22);
 	            }
-	            if (PdbName.ToUpper() == "5FQ8") //added 6-22-17 for v4
+                if (PdbName.ToUpper() == "5FQ8" || PdbName.ToUpper() == "5FQ7") //added 6-22-17 for v4; Added 5fq7 on 10-1-18 for v6_network comparison
 	            {
 	                protoBarrel[3].RemoveRange(27, 13);
 	                protoBarrel[4].RemoveRange(0, 41);
@@ -763,7 +776,7 @@ namespace betaBarrelProgram
 	            {
 	                protoBarrel[6].RemoveRange(11, 16);
 	            }
-	            if (PdbName.ToUpper() == "5T3R") //added 6-22-17 for v4
+                if (PdbName.ToUpper() == "5T3R" || PdbName.ToUpper() == "5T4Y") //added 6-22-17 for v4; Added 5T4Y on 10-1-18 for v6_network comparison
 	            {
 	                protoBarrel.RemoveRange(19, 1);
 	            }
@@ -795,7 +808,9 @@ namespace betaBarrelProgram
 	            {
 	                protoBarrel[12].InsertRange(0, Enumerable.Range(protoBarrel[12][0]-3, 3));
 	                protoBarrel[13].AddRange(Enumerable.Range(protoBarrel[13].Last(), 4));
-	            }
+                }
+                //for (int x = 0; x < this.protoBarrel.Count; x++) { Console.WriteLine(x + "\t" + _myChain.Residues[this.protoBarrel[x][0]].SeqID + "\t" + _myChain.Residues[this.protoBarrel[x].Last()].SeqID); }
+
 			}//End of CreateStrands
 
 	        public void checkStrandDefnsDSSP(ref Chain _myChain) //Added 6-5-17 for loops

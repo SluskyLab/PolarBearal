@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace betaBarrelProgram
 {
-    public class PolarBearal
+    public class PolarBearal //Not used by MegProgram
     {
         //polarBearal Variable 
         public static string path = Global.MONO_OUTPUT_DIR + "PolarBearal\\";

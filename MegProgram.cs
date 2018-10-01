@@ -27,9 +27,13 @@ namespace betaBarrelProgram
         public static string POLY_OUTPUT_DIR = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\";
         //public static string polyoutDirectory = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\RosettaLoops\";
 
-        public static string MONO_DB_DIR = @"Z:\Documents\PhD\SluskyLab\MonoDB\";
-        public static string MACMONODBDIR = "/Users/meghan/Documents/PhD/SluskyLab/MonoDB/";
-        public static string MONO_OUTPUT_DIR = @"Z:\Documents\PhD\SluskyLab\Output\monomers_v5\";
+        //public static string MONO_DB_DIR = @"Z:\Documents\PhD\SluskyLab\MonoDB\";
+        //public static string MACMONODBDIR = "/Users/meghan/Documents/PhD/SluskyLab/MonoDB/";
+        //public static string MONO_OUTPUT_DIR = @"Z:\Documents\PhD\SluskyLab\Output\monomers_v5\";
+        public static string MONO_DB_DIR = @"Z:\Documents\PhD\GitProjects\v6_2018_Network\CompStrDefns\CompPDBs\";
+        public static string MACMONODBDIR = "/Users/meghan/Documents/PhD/GitProjects/v6_2018_Network/CompStrDefns/CompPDBs/";
+        public static string MONO_OUTPUT_DIR = @"Z:\Documents\PhD\GitProjects\v6_2018_Network\CompStrDefns\";
+        
         //Remember to change lines to seqID for rel num or to ResNum to abs num in getLoopSeq function
         //public static string MONO_OUTPUT_DIR = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\";
         //public static string MONO_OUTPUT_DIR = @"Z:\Documents\PhD\SluskyLab\BarrelChars\LoopTurns\RosettaLoops\";
@@ -190,7 +194,9 @@ namespace betaBarrelProgram
 
             //string fileOfPDBs = @"Z:\Documents\PhD\SluskyLab\MonoDB\MonoDBAlts.txt"; //input file with list of xml files
             //string fileOfPDBs = @"Z:\Documents\PhD\SluskyLab\8-12Scaffolds\ScaffoldListPB.txt"; //input file with list of xml files
-            string fileOfPDBs = @"Z:\Documents\PhD\SluskyLab\MonoDB\MonoDBList_v5_85.txt"; //input file with list of xml files
+            //string fileOfPDBs = @"Z:\Documents\PhD\SluskyLab\MonoDB\MonoDBList_v5_85.txt"; //input file with list of xml files
+            string fileOfPDBs = @"Z:\Documents\PhD\GitProjects\v6_2018_Network\CompStrDefns\PDBsToCheck_NoChain.txt";
+            
             if (File.Exists(fileOfPDBs))
             {
                 using (StreamReader sr = new StreamReader(fileOfPDBs))
@@ -199,7 +205,7 @@ namespace betaBarrelProgram
                     string fileLocation2 = Global.MONO_OUTPUT_DIR + "AllBarrelChar.txt";
                     using (System.IO.StreamWriter file = new System.IO.StreamWriter(fileLocation2))
                     {
-                        string newLine = "PDB" + "\t\t" + "Total Strands" + "\t" + "Length" + "\t" + "AvgLength" + "\t" + "MinLength" + "\t" + "MaxLength" + "\t" + "Radius" + "\t" + "Barrel Tilt";
+                        string newLine = "PDB" + "\t\t" + "Total Strands" + "\t" + "Length" + "\t" + "AvgLength" + "\t" + "MinLength" + "\t" + "MaxLength" + "\t" + "Radius\tMinRadius\tMaxRadius" + "\t" + "Barrel Tilt" + "\t" + "Shear" + "\t" + "Twist";
                         file.WriteLine(newLine);
                         // Read and display lines from the file until the end of the file is reached.
                         while ((line = sr.ReadLine()) != null)
@@ -212,18 +218,20 @@ namespace betaBarrelProgram
                                 string fileName = pdb;
                                 //string fileName = pdb + ".pdb";
                                 Barrel myBarrel = runBetaBarrel(fileName, ref Global.AADict, ref Global.partialChargesDict);
-                                string char1 = myBarrel.PdbName;
+                                /*string char1 = myBarrel.PdbName;
                                 string char2 = myBarrel.Axis.Length.ToString();
                                 string char7 = myBarrel.StrandLength.Average().ToString();
                                 string char8 = myBarrel.StrandLength.Min().ToString();
                                 string char9 = myBarrel.StrandLength.Max().ToString();
                                 string char3 = myBarrel.AvgRadius.ToString();
+                                string char11 = myBarrel.MinRadius.ToString();
+                                string char12 = myBarrel.MaxRadius.ToString();
                                 string char4 = myBarrel.Strands.Count.ToString();
                                 string char5 = myBarrel.AvgTilt.ToString();
                                 string char6 = myBarrel.ShearNum.ToString();
                                 string char10 = myBarrel.PrevTwists.Average().ToString();
-                                newLine = char1 + "\t" + char4 + "\t" + char2 + "\t" + char7 + "\t" + char8 + "\t" + char9 + "\t" + char3 + "\t" + char5 + "\t" + char6 + "\t" + char10;
-                                file.WriteLine(newLine);
+                                newLine = char1 + "\t" + char4 + "\t" + char2 + "\t" + char7 + "\t" + char8 + "\t" + char9 + "\t" + char3 + "\t" + char11 + "\t" + char12 + "\t" + char5 + "\t" + char6 + "\t" + char10;
+                                file.WriteLine(newLine);*/
                                 //Console.WriteLine("Number of Proteins: {0} \t AAs: {1} \t Double Checked Directions: {2}", totalProteins, totalAAs, numDoubleChecks);
                             }
                         }
@@ -261,7 +269,7 @@ namespace betaBarrelProgram
 
             betaBarrelProgram.BarrelStructures.Protein newProt = new MonoProtein(ref myAtomCat, chainNum, PDB);
 
-            Console.Write("creating barrel class..");
+            Console.WriteLine("creating barrel class..");
 
             Barrel myBarrel = new MonoBarrel(newProt.Chains[0], newProt);
 

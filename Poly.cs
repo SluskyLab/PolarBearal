@@ -93,6 +93,8 @@ namespace betaBarrelProgram
             public double AvgTilt_odd { get; set; }
             public List<List<List<int>>> protoBarrel { get; set; }
             public double AvgRadius { get; set; }
+            public double MinRadius { get; set; }
+            public double MaxRadius { get; set; }
             public List<Res> LoopResies { get; set; }
             public string PdbName { get; set; }
             public List<double> StrandLength { get; set; }
@@ -156,7 +158,10 @@ namespace betaBarrelProgram
 	            getEllipseCoords(outwardStrands);
 
 	            this.Axis = this.Ccentroid - this.Ncentroid;
-	            this.AvgRadius = SharedFunctions.setRadius(this.Strands, this.Axis, this.Ccentroid, this.Ncentroid);
+                var radii = SharedFunctions.setRadius(this.Strands, this.Axis, this.Ccentroid, this.Ncentroid);
+                this.AvgRadius = radii.Item1;
+                this.MaxRadius = radii.Item3;
+                this.MinRadius = radii.Item2;
 
 	            this.AxisVector = this.Ccentroid - this.Ncentroid; //getNormal(this.NellipseCoords, this.Ncentroid); //This is used for asymmetric barrel ellipses
 
