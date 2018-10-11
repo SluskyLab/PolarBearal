@@ -630,8 +630,12 @@ namespace betaBarrelProgram
                 Vector3D unitA = EigenvectorA / EigenvectorA.Length;
                 Vector3D unitB = EigenvectorB / EigenvectorB.Length;
 
+                // different best fit magnitudes for different errors, but will not change eccentricity calculations
+
+                // for erroring on larger magnitude (ellipse outside of barrel ends)
                 double MajorMagnitude = 4*Math.Sqrt(eigenValA / myEllipse.Count);
                 double MinorMagnitude = 4*Math.Sqrt(eigenValB / myEllipse.Count);
+                // for erroring on ? magnitude (ellipse ? of barrel ends)
                 //double MajorMagnitude = (4* Math.Sqrt(eigenValA / myEllipse.Count))/2; //from noline pafe for semi?
                 //double MinorMagnitude = (4* Math.Sqrt(eigenValB / myEllipse.Count))/2;
 
